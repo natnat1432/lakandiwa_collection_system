@@ -14,7 +14,32 @@ def create_tables():
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    title = "Log in | Lakandiwa Collection System"
+    message = request.args.get('message')
+
+    if message != 'Invalid log in' and message is not None:
+        return abort(404, "Page not found")
+    return render_template("index.html", title=title, message=message)
+
+@app.route('/login-validate', methods=['POST'])
+def loginvalidate():
+    userID = request.form['userID']
+    password = request.form['password']
+
+    if userID and password:
+        if userID == '12345678' and password == 'lakandiwa@2023':
+            print('log in')
+    else:
+        message="Invalid log in"
+        return redirect(url_for('index', message=message))
+    print(userID,password)
+
+
+@app.route('/home')
+def home():
+    title = "Home | Lakandiwa Collection System"
+
+    return render_template('home.html', title=title)
 
 if __name__ == "__main__":
     app.run(debug=True,host='0.0.0.0')

@@ -1,0 +1,92 @@
+.flexer{
+  display:flex;
+}
+/* login css */
+.login-form{
+    max-width:350px;
+    margin:auto;
+    justify-content: center;
+    height:100%;
+    align-items: center;
+    padding:30px;
+
+}
+
+.login-container{
+    height:100%;
+    width:100%;
+    justify-content: center;
+    align-items: center;
+    display:flex;
+ 
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
+  
+
+  .center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:100vh;
+  }
+
+
+/* end login css */
+
+
+/* MD5 CSS Sidebar */
+body {
+  background-color: #fbfbfb;
+}
+@media (min-width: 991.98px) {
+  main {
+    padding-left: 240px;
+  }
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  padding: 58px 0 0; /* Height of navbar */
+  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
+  width: 240px;
+  z-index: 600;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    width: 100%;
+  }
+}
+.sidebar .active {
+  border-radius: 5px;
+  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.tab-icon{
+  width:30px;
+}
+
+.home-button{
+  width:200px;
+  height:200px;
+}
+/* End MD5 CSS Sidebar */

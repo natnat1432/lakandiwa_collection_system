@@ -1,0 +1,120 @@
+{% extends 'base.html'%}
+
+{% block title %}
+{{title}}
+{% endblock %}
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+
+
+<!--Main layout-->
+<main style="margin-top: 58px">
+
+    <div class="modal fade" id="addCollectionModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Payment Collection</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please fill all the necessary fields.</p>
+                    <hr>
+                    <form>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Acknowledgement Receipt Number</b></label>
+                            <div class="flexer">
+                            <input type="text" class="form-control" id="recipient-name" placeholder="Acknowledgement Receipt No">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Student ID Number:</b></label>
+                            <div class="flexer">
+                            <input type="text" class="form-control" id="recipient-name" placeholder="ID Number">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Student Name:</b></label>
+                            <div class="flexer">
+                            <input type="text" class="form-control" id="" placeholder="First Name">
+                            <input type="text" class="form-control" id="" placeholder="MI" style="width:70px;">
+                            <input type="text" class="form-control" id="" placeholder="Last Name">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Course:</b></label>
+                            <select class="form-select" aria-label="Default select example">
+                                <option value="AB-ENGLISH">AB-ENGLISH</option>
+                                <option value="AB-LITERATURE">AB-LITERATURE</option>
+                                <option value="AB-POLSCI">AB-POLSCI</option>
+                                <option value="AB-PSYCH">AB-PSYCH</option>
+                                <option value="BEED">BEED</option>
+                                <option value="BPeA">BPeA</option>
+                                <option value="BPED">BPED</option>
+                                <option value="BSA">BSA</option>
+                                <option value="BSBA">BSBA</option>
+                                <option value="BSCA">BSCA</option>
+                                <option value="BSCE">BSCE</option>
+                                <option value="BSCPE">BSCPE</option>
+                                <option value="BSCRIM">BSCRIM</option>
+                                <option value="BSCS">BSCS</option>
+                                <option value="BSECE">BSECE</option>
+                                <option value="BSED">BSED</option>
+                                <option value="BSEE">BSEE</option>
+                                <option value="BSHM">BSHM</option>
+                                <option value="BSIE">BSIE</option>
+                                <option value="BSIT">BSIT</option>
+                                <option value="BSMA">BSMA</option>
+                                <option value="BSME">BSME</option>
+                                <option value="BSNED">BSNED</option>
+                                <option value="BSOA">BSOA</option>
+                                <option value="BSREM">BSREM</option>
+                                <option value="BSSW">BSSW</option>
+                              </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Year Level</b></label>
+                            <select class="form-select" aria-label="Default select example">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                             
+                              </select>
+                        </div>
+                      
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary home-button" data-bs-toggle="modal"
+        data-bs-target="#addCollectionModal" data-bs-whatever="@mdo"><i class="fa-sharp fa-solid fa-money-bill"></i>
+        <br> <i class="fa fa-plus" aria-hidden="true"></i> Add Payment Collection</button>
+    <button type="button" class="btn btn-secondary home-button"><i class="fa-sharp fa-solid fa-money-bill"></i> <br> <i
+            class="fa-solid fa-eye"></i> View Payment Collection</button>
+
+    <div class="container pt-4">
+        <!-- Section: Main chart -->
+        <section class="mb-4">
+            <div class="card">
+
+            </div>
+        </section>
+        <!-- Section: Main chart -->
+
+
+
+    </div>
+</main>
+<!--Main layout-->
+{% endblock %}
