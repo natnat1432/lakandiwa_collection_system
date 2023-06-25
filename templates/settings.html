@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}
+{{title}}
+{% endblock %}
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+<!--Main layout-->
+<main style="margin-top: 58px">
+    <div class="modal fade" id="updateSubsidyModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Update Subsidy Amount</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <hr>
+                    <form method="POST" action="/updatesubsidyamount">
+
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Subsidy Amount</b></label>
+                            <div class="flexer">
+                                <input type="text" class="form-control" id="recipient-name" placeholder="Php 00.00"
+                                    name="subsidy_value" required value="{{subsidy_amount}}">
+                            </div>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="updateCollectionModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Update Collection Amount</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <hr>
+                    <form method="POST" action="/updatecollectionamount">
+
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Collection Amount</b></label>
+                            <div class="flexer">
+                                <input type="text" class="form-control" id="recipient-name" placeholder="Php 00.00"
+                                    name="collection_value" required value="{{collection_amount}}">
+                            </div>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container pt-4">
+        <!-- Section: Main chart -->
+        <section class="mb-4">
+            <h1>Settings</h1>
+            <hr>
+            <label for="" style="width:150px;">Subisidy Amount</label>
+            <input type="text" placeholder="Php 00.00" class="form-control" readonly value="{{subsidy_amount}}">
+            <br>
+            <button class="btn btn-primary" style="width:250px;" data-bs-toggle="modal"
+                data-bs-target="#updateSubsidyModal"><i class="fa-solid fa-money-bill"></i> Change Subsidy
+                Amount</button>
+            <br>
+            <hr>
+            <label for="" style="width:150px;">Collection Amount</label>
+            <input type="text" placeholder="Php 00.00" class="form-control" readonly value="{{collection_amount}}">
+            <br>
+            <button class="btn btn-primary" style="width:250px;" data-bs-toggle="modal" data-bs-target="#updateCollectionModal"><i class="fa-solid fa-money-bill"></i> Change
+                Collection Amount</button>
+        </section>
+    </div>
+</main>
+{% endblock %}

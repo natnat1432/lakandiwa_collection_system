@@ -1,40 +1,63 @@
-.flexer{
-  display:flex;
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
+
+.flexer {
+  display: flex;
+}
+
+.background{
+  background-image: url('../images/cover.jpg');
+  background-size: contain;
+  background-position: center;
+  width: 100%;
+  height: 100%;
+}
+
 /* login css */
-.login-form{
-    max-width:350px;
-    margin:auto;
-    justify-content: center;
-    height:100%;
-    align-items: center;
-    padding:30px;
+.login-form {
+  max-width: 350px;
+  margin: auto;
+  justify-content: center;
+  border-radius:10px;
+  
+  align-items: center;
+  padding: 30px;
+  background-color: white;
+  box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px, rgba(0, 0, 0, 0.07) 0px 2px 4px, rgba(0, 0, 0, 0.07) 0px 4px 8px, rgba(0, 0, 0, 0.07) 0px 8px 16px, rgba(0, 0, 0, 0.07) 0px 16px 32px, rgba(0, 0, 0, 0.07) 0px 32px 64px;
 
 }
 
-.login-container{
-    height:100%;
-    width:100%;
-    justify-content: center;
-    align-items: center;
-    display:flex;
- 
+.login-container {
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+
 }
 
 .image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-  }
-  
+}
 
-  .center-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height:100vh;
-  }
+
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.quote {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 
 
 /* end login css */
@@ -44,6 +67,7 @@
 body {
   background-color: #fbfbfb;
 }
+
 @media (min-width: 991.98px) {
   main {
     padding-left: 240px;
@@ -56,7 +80,8 @@ body {
   top: 0;
   bottom: 0;
   left: 0;
-  padding: 58px 0 0; /* Height of navbar */
+  padding: 58px 0 0;
+  /* Height of navbar */
   box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
   width: 240px;
   z-index: 600;
@@ -67,6 +92,7 @@ body {
     width: 100%;
   }
 }
+
 .sidebar .active {
   border-radius: 5px;
   box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
@@ -78,15 +104,184 @@ body {
   height: calc(100vh - 48px);
   padding-top: 0.5rem;
   overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  overflow-y: auto;
+  /* Scrollable contents if viewport is shorter than content. */
 }
 
-.tab-icon{
-  width:30px;
+.tab-icon {
+  width: 30px;
 }
 
-.home-button{
-  width:200px;
-  height:200px;
+.home-button {
+  width: 200px;
+  height: 200px;
+}
+
+
+.home-select{
+  width:50px;
 }
 /* End MD5 CSS Sidebar */
+
+/* Toast Animation CSS */
+#toast {
+  visibility: hidden;
+  max-width: 50px;
+  height: 50px;
+  margin: auto;
+  background-color: #126f9f;
+  color: #fff;
+  text-align: center;
+  border-radius: 7.5px;
+
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  bottom: 30px;
+  font-size: 17px;
+  white-space: nowrap;
+}
+
+#toast #img {
+  width: 50px;
+  height: 50px;
+
+  float: left;
+
+  padding-top: 16px;
+  padding-bottom: 16px;
+
+  box-sizing: border-box;
+
+
+  background-color: #115272;
+  color: #fff;
+}
+
+#toast #desc {
+
+
+  color: #fff;
+
+  padding: 16px;  
+  text-indent:5px;
+  overflow:visible;
+  white-space: nowrap;
+}
+
+#toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s, shrink 0.5s 2s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s, shrink 0.5s 4s, fadeout 0.5s 4.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes expand {
+  from {
+    min-width: 50px
+  }
+
+  to {
+    min-width: 350px
+  }
+}
+
+@keyframes expand {
+  from {
+    min-width: 50px
+  }
+
+  to {
+    min-width: 350px
+  }
+}
+
+@-webkit-keyframes stay {
+  from {
+    min-width: 350px
+  }
+
+  to {
+    min-width: 350px
+  }
+}
+
+@keyframes stay {
+  from {
+    min-width: 350px
+  }
+
+  to {
+    min-width: 350px
+  }
+}
+
+@-webkit-keyframes shrink {
+  from {
+    min-width: 350px;
+  }
+
+  to {
+    min-width: 50px;
+  }
+}
+
+@keyframes shrink {
+  from {
+    min-width: 350px;
+  }
+
+  to {
+    min-width: 50px;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 60px;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 60px;
+    opacity: 0;
+  }
+}
+
+/* End Toast Animation CSS */

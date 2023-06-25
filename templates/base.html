@@ -59,7 +59,7 @@
           Are you sure you want to log out?
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Yes</button>
+          <button type="button" onclick="location.href='/logout' " class="btn btn-primary">Yes</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
         </div>
       </div>
@@ -72,16 +72,66 @@
         <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
             <div class="position-sticky">
                 <div class="list-group list-group-flush mx-3 mt-4">
-
-                    <a href="#" class="list-group-item list-group-item-action py-2 ripple active">
+                    {% if session.position != 'Admin' %}
+                    {% if title == 'Home' %}
+                    <a href="{{url_for('home')}}" class="list-group-item list-group-item-action py-2 ripple active">
                         <i class="fa fa-home tab-icon" aria-hidden="true"></i><span>Home</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action py-2 ripple ">
-                        <i class="fa fa-users tab-icon" aria-hidden="true"></i><span>Subsidy</span>
+                    {% else %}
+                    <a href="{{url_for('home')}}" class="list-group-item list-group-item-action py-2 ripple">
+                        <i class="fa fa-home tab-icon" aria-hidden="true"></i><span>Home</span>
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action py-2 ripple ">
+                    {% endif %}
+                    {% endif %}
+
+                    {% set allowed_subsidy = ['Editor in Chief', 'Managing Director'] %}
+                    {% if session.position in allowed_subsidy %}
+                    {% if title == 'Subsidy' %}
+                    <a href="{{url_for('subsidy')}}" class="list-group-item list-group-item-action py-2 ripple active">
+                        <i class="fa-solid fa-money-bill tab-icon"></i><span>Subsidy</span>
+                    </a>
+                    {% else %}
+                    <a href="{{url_for('subsidy')}}" class="list-group-item list-group-item-action py-2 ripple ">
+                        <i class="fa-solid fa-money-bill tab-icon"></i><span>Subsidy</span>
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                    {% set allowed_users = ['Editor in Chief', 'Managing Director', 'Admin'] %}
+                    {% if session.position in allowed_users %}
+                    {% if title == 'Users' %}
+                    <a href="{{url_for('users')}}" class="list-group-item list-group-item-action py-2 ripple active">
+                        <i class="fa fa-users tab-icon" aria-hidden="true"></i><span>Users</span>
+                    </a>
+                    {% else %}
+                    <a href="{{url_for('users')}}" class="list-group-item list-group-item-action py-2 ripple ">
+                        <i class="fa fa-users tab-icon" aria-hidden="true"></i><span>User</span>
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                    {% set allowed_reports = ['Editor in Chief', 'Managing Director', 'Finance Manager'] %}
+                    {% if session.position in allowed_reports %}
+                    {% if title == 'Reports' %}
+                    <a href="{{url_for('reports')}}" class="list-group-item list-group-item-action py-2 ripple active ">
                         <i class='fa fa-file tab-icon' aria-hidden="true"></i><span>Reports</span>
                     </a>
+                    {% else %}
+                    <a href="{{url_for('reports')}}" class="list-group-item list-group-item-action py-2 ripple ">
+                        <i class='fa fa-file tab-icon' aria-hidden="true"></i><span>Reports</span>
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                    {% set allowed_settings = ['Editor in Chief', 'Managing Director', 'Finance Manager'] %}
+                    {% if session.position in allowed_settings %}
+                    {% if title == 'Settings' %}
+                    <a href="{{url_for('settings')}}" class="list-group-item list-group-item-action py-2 ripple active ">
+                        <i class="fa-solid fa-gear tab-icon"></i><span>Settings</span>
+                    </a>
+                    {% else %}
+                    <a href="{{url_for('settings')}}" class="list-group-item list-group-item-action py-2 ripple ">
+                        <i class="fa-solid fa-gear tab-icon"></i><span>Settings</span>
+                    </a>
+                    {% endif %}
+                    {% endif %}
                     <button class="list-group-item list-group-item-action py-2 ripple " data-bs-toggle="modal" data-bs-target="#exampleModal">
                         <i class="fa fa-sign-out tab-icon" aria-hidden="true"></i><span>Log out</span>
                     </button>

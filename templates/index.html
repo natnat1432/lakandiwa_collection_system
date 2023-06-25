@@ -2,7 +2,7 @@
 
 {% block title %}
 {{title}}
-{% endblock  %}
+{% endblock %}
 
 {% block head %}
 <script src="{{url_for('static', filename='/js/login.js')}}"></script>
@@ -13,42 +13,67 @@
 {% endblock %}
 {% block body %}
 
-<br><br><br><br><br><br><br>
-<div class="login-container ">
-<div class="login-form">
-    <div class="image-container">
-<img src="{{url_for('static',filename='images/lakandiwa.svg')}}" style="width:250px;" alt="">
+
+
+
+{% if message is defined and message is not none %}
+<div id="toast">
+  <div id="img"><i class="fa-solid fa-message"></i></div>
+  <div id="desc">{{message}}</div>
 </div>
-
-<hr>
-<h3>Lakandiwa Collection System</h3>
-
-<br>
-<p>Log in to continue</p>
-<form action="/login-validate" method="POST">
-<div class="input-group input-group-lg">
-    <span class="input-group-text" id="inputGroup-sizing-lg" style="width:120px;">ID Number</span>
-    <input name="userID" type="text" class="form-control" id="login-userID" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" />
-  </div>
-  <br>
-<div class="input-group input-group-lg">
-    <span class="input-group-text" id="inputGroup-sizing-lg" style="width:120px;">Password</span>
-    <input name="password" type="password" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" />
-  </div>
-<br>
-
-{% if message is defined and message is not none and message == 'Invalid log in'%}
-<p style="color:red">{{message}}</p>
 
 {% endif %}
-<br>
-<div class="d-grid gap-2">
-  <button type="submit" class="btn btn-primary btn-rounded" style="height:45px;" >Log in</button>
-</div>
-</form>
+
+<div class="background">
+
+<div class="login-container ">
+  <div class="login-form">
+    <div class="image-container">
+      <img src="{{url_for('static',filename='images/lakandiwa.svg')}}" style="width:250px;" alt="">
+    </div>
+
+    <hr>
+    <h3>Lakandiwa Collection System</h3>
+
+    <br>
+    <p>Log in to continue</p>
+    <form action="/login-validate" method="POST">
+      <div class="input-group input-group-lg">
+        <span class="input-group-text" id="inputGroup-sizing-lg" style="width:120px;">ID Number</span>
+        <input name="userID" type="text" class="form-control" id="login-userID" aria-label="Sizing example input"
+          aria-describedby="inputGroup-sizing-lg" />
+      </div>
+      <br>
+      <div class="input-group input-group-lg">
+        <span class="input-group-text" id="inputGroup-sizing-lg" style="width:120px;">Password</span>
+        <input name="password" type="password" class="form-control" aria-label="Sizing example input"
+          aria-describedby="inputGroup-sizing-lg" />
+      </div>
+      <br>
+
+   
+      <br>
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary btn-rounded" style="height:45px;">Log in</button>
+      </div>
+    </form>
 
 
+  </div>
 </div>
 </div>
+<script>
 
+
+
+  function launch_toast() {
+    var x = document.getElementById("toast")
+    x.className = "show";
+    setTimeout(function () { x.className = x.className.replace("show", ""); }, 5000);
+  }
+
+
+  launch_toast();
+
+</script>
 {% endblock %}

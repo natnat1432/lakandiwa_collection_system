@@ -2,7 +2,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 
-
 #app config
 app  = Flask(__name__)
 app.secret_key = "Lakandiwa2023"    

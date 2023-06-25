@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{title}}
+{% endblock %}
+
+{% block head %}
+<script src="{{url_for('static',filename='js/subsidy.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<style>
+  /* Increase the size of the datetime-local input */
+  input[type="datetime-local"] {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  /* Increase the size of the date and time picker popup */
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    font-size: 16px;
+    padding: 5px;
+  }
+</style>
+{% endblock %}
+
+
+{% block body %}
+<main style="margin-top: 58px">
+  <div class="container pt-4">
+    <!-- Section: Main chart -->
+    <section class="mb-4">
+      <div class="modal fade" id="deleteSubsidyModal" tabindex="-1" aria-labelledby="deleteSubsidyModal"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Subsidy</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete <span id="delete_name"></span>'s schedule on <span
+                  id="date_range"></span> ?</p>
+              <input type="text" id="delete_id" hidden>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+              <button type="submit" class="btn btn-primary" onclick="deleteSubsidy()">Yes</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if message is defined and message is not none %}
+      <div id="toast">
+        <div id="img"><i class="fa-solid fa-message"></i></div>
+        <div id="desc">{{message}}</div>
+      </div>
+      {% endif %}
+      <div class="modal fade" id="addSubsidyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Add Subsidy</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Please fill all the necessary fields.</p>
+              <hr>
+              <form method="POST" action="/addsubsidy">
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Member</b></label>
+                  <select class="form-select" aria-label="Default select example" name="member_id" required>
+                    {% for each in members %}
+                    <option value="{{each.id}}">{{each.lastname}}, {{each.firstname}}</option>
+
+                    {% endfor %}
+
+
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Start Schedule: </b></label>
+                  <div class="flexer">
+                    <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>End Schedule: </b></label>
+                  <div class="flexer">
+                    <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Subsidy Value: </b></label>
+                  <div class="flexer">
+                    <input type="number" readonly value="{{subsidy_amount}}" class="form-control" id="" placeholder="Php 00.00" name="subsidy_value"
+                      required>
+                  </div>
+                </div>
+
+
+
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="editSubsidyModal" tabindex="-1" aria-labelledby="editSubsidyModal" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Subsidy</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Please do not leave the necessary fields empty.</p>
+              <hr>
+              <form method="POST" action="/editsubsidy">
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Subsidy ID </b></label>
+                  <div class="flexer">
+                    <input type="text" class="form-control" id="edit_subsidy_id" name="edit_subsidy_id" readonly
+                      required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Member</b></label>
+                  <select class="form-select" aria-label="Default select example" name="edit_member_id"
+                    id="edit_member_id" required>
+                    {% for each in members %}
+                    <option value="{{each.id}}">{{each.lastname}}, {{each.firstname}}</option>
+
+                    {% endfor %}
+
+
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Start Schedule: </b></label>
+                  <div class="flexer">
+                    <input type="datetime-local" class="form-control" id="edit_start_date" name="edit_start_date"
+                      required>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>End Schedule: </b></label>
+                  <div class="flexer">
+                    <input type="datetime-local" class="form-control" id="edit_end_date" name="edit_end_date" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Subsidy Value: </b></label>
+                  <div class="flexer">
+                    <input type="number" readonly value="{{subsidy_amount}}" class="form-control" id="edit_subsidy_value" name="edit_subsidy_value"
+                      required>
+                  </div>
+                </div>
+
+
+
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Update</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <h1>Subsidy</h1>
+
+      <button type="button" class="btn btn-secondary home-button" data-bs-toggle="modal"
+        data-bs-target="#addSubsidyModal" data-bs-whatever="@mdo"><i class="fa-sharp fa-solid fa-money-bill"></i>
+        <br> <i class="fa fa-plus" aria-hidden="true"></i> Add Subsidy</button>
+
+      <table class="table align-middle mb-0 bg-white">
+        <thead class="bg-light">
+          <tr>
+            <th>Member Name</th>
+            <th>Schedule Start</th>
+            <th>Schedule End</th>
+            <th>Subsidy Value</th>
+            <th>Action</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in subsidies %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+
+                <div class="ms-3">
+                  <p class="fw-bold mb-1">{{member.lastname}}, {{member.firstname }}</p>
+                  <p class="text-muted mb-0">{{member.id}} | {{member.position}}</p>
+
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <p class="fw-normal mb-1">
+                <span class="dates"><i class="fa-solid fa-calendar-days"></i> {{member.start_date|format_datetime
+                  }}</span>
+              </p>
+            </td>
+            <td>
+              <p class="fw-normal mb-1">
+                <span class="dates"><i class="fa-solid fa-calendar-days"></i> {{member.end_date |format_datetime
+                  }}</span>
+              </p>
+            </td>
+            <td>
+              <p class="fw-normal mb-1">Php <b>{{member.subsidy_value}}</b></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"
+                data-bs-target="#deleteSubsidyModal"
+                onclick="setDeleteSubsidyModal('{{member.subsidy_id}}','{{member.firstname}}','{{member.lastname}}', '{{member.start_date}}', '{{member.end_date}}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"
+                data-bs-target="#editSubsidyModal"
+                onclick="setEditSubsidyModal('{{member.id}}','{{member.subsidy_id}}','{{member.start_date}}','{{member.end_date}}', '{{member.subsidy_value}}')">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+</main>
+
+<script>
+  var startDateInput = document.getElementById('start_date');
+  var endDateInput = document.getElementById('end_date');
+  var minDate = moment().format('YYYY-MM-DDTHH:mm');
+  startDateInput.setAttribute('min', minDate);
+  endDateInput.setAttribute('min', minDate);
+
+
+  function launch_toast() {
+    var x = document.getElementById("toast")
+    x.className = "show";
+    setTimeout(function () { x.className = x.className.replace("show", ""); }, 5000);
+  }
+
+
+  launch_toast();
+
+
+
+</script>
+{% endblock %}
