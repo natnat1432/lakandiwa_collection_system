@@ -104,7 +104,7 @@
                     </a>
                     {% else %}
                     <a href="{{url_for('users')}}" class="list-group-item list-group-item-action py-2 ripple ">
-                        <i class="fa fa-users tab-icon" aria-hidden="true"></i><span>User</span>
+                        <i class="fa fa-users tab-icon" aria-hidden="true"></i><span>Users</span>
                     </a>
                     {% endif %}
                     {% endif %}
@@ -124,11 +124,24 @@
                     {% if session.position in allowed_settings %}
                     {% if title == 'Settings' %}
                     <a href="{{url_for('settings')}}" class="list-group-item list-group-item-action py-2 ripple active ">
-                        <i class="fa-solid fa-gear tab-icon"></i><span>Settings</span>
+                        <i class="fa-solid fa-gear tab-icon"></i><span>Collection Settings</span>
                     </a>
                     {% else %}
                     <a href="{{url_for('settings')}}" class="list-group-item list-group-item-action py-2 ripple ">
-                        <i class="fa-solid fa-gear tab-icon"></i><span>Settings</span>
+                        <i class="fa-solid fa-gear tab-icon"></i><span>Collection Settings</span>
+                    </a>
+                    {% endif %}
+                    {% endif %}
+
+                 
+                    {% if session.position != 'Admin' %}
+                    {% if title == 'User Settings' %}
+                    <a href="{{url_for('usersettings')}}" class="list-group-item list-group-item-action py-2 ripple active ">
+                        <i class="fa-solid fa-gear tab-icon"></i><span>User Settings</span>
+                    </a>
+                    {% else %}
+                    <a href="{{url_for('usersettings')}}" class="list-group-item list-group-item-action py-2 ripple ">
+                        <i class="fa-solid fa-gear tab-icon"></i><span>User Settings</span>
                     </a>
                     {% endif %}
                     {% endif %}

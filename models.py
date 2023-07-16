@@ -1,6 +1,8 @@
 from config import db
 from datetime import datetime
 
+from util import toDateTime
+
 
 class User(db.Model):
     id = db.Column(db.String(8), primary_key = True)
@@ -9,8 +11,10 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     position = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(30), nullable=False)
-    subsidy = db.relationship('Subsidy', backref='user', lazy=True)
     collection = db.relationship('Collection', backref='user', lazy=True)
+
+    subsidies_as_member = db.relationship('Subsidy', foreign_keys='Subsidy.member_id', backref='member' ,lazy=True)
+    subsidies_as_signer = db.relationship('Subsidy', foreign_keys='Subsidy.signed_by' ,backref='signer' ,lazy=True)
     def __init__(self,id,firstname,lastname,password, position, status):
         self.id = id
         self.firstname = firstname
@@ -22,31 +26,36 @@ class User(db.Model):
 class Subsidy(db.Model):
     subsidy_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     member_id = db.Column(db.String(8), db.ForeignKey('user.id'), nullable=False)
+    role = db.Column(db.String(30), nullable = False)
     start_date = db.Column(db.DateTime, nullable=False)
     clocked_start_date = db.Column(db.DateTime, nullable=True)
     end_date = db.Column(db.DateTime, nullable=False)
     clocked_end_date = db.Column(db.DateTime, nullable=True)
     subsidy_value = db.Column(db.Numeric(precision=10, scale=2), db.ForeignKey('subsidy_value.subsidy_value'), nullable=False)
     rendered_hours = db.Column(db.Time, nullable=True)
+    signed_by = db.Column(db.String(8), db.ForeignKey('user.id'), nullable=True)
+
     #checked_by // EIC only
-    def __init__(self, member_id, start_date, end_date):
+    def __init__(self, member_id, role, start_date, end_date):
         self.member_id = member_id
         self.start_date = start_date
         self.end_date = end_date
         subsidy_value = SubsidyValue.query.first()
+        self.role = role
         self.subsidy_value = subsidy_value.subsidy_value
+
         
 class Collection(db.Model):
     acknowledgementID = db.Column(db.String(255), primary_key = True, unique = True)
-    id_number = db.Column(db.String(8), nullable = False)
-    student_firstname = db.Column(db.String(255), nullable = False)
+    id_number = db.Column(db.String(8), nullable = True)
+    student_firstname = db.Column(db.String(255), nullable = True)
     student_middlename = db.Column(db.String(255), nullable = True)
-    student_lastname = db.Column(db.String(255), nullable = False)
+    student_lastname = db.Column(db.String(255), nullable = True)
     course = db.Column(db.String(55), nullable = False)
-    year = db.Column(db.Integer, nullable = False)
+    year = db.Column(db.Integer, nullable = True)
     excempted_category = db.Column(db.String(55), nullable=True)
     member_id = db.Column(db.String(8), db.ForeignKey('user.id'), nullable=False)
-    collection_value = db.Column(db.Numeric(precision=10, scale=2), db.ForeignKey('collection_value.collection_value'), nullable = False)
+    collection_value = db.Column(db.Numeric(precision=10, scale=2), db.ForeignKey('collection_value.collection_value'), nullable = True)
     voided = db.Column(db.String(12), nullable=False)
     #voided_at //datetime where book is voided
     created_at = db.Column(db.DateTime, nullable = False)
@@ -65,6 +74,12 @@ class Collection(db.Model):
         self.collection_value = collection_value.collection_value
         self.voided = "no"
         self.created_at = datetime.now()
+
+    
+
+
+ 
+    
 
 class SubsidyValue(db.Model):
     subsidy_value = db.Column(db.Numeric(precision=10, scale=2), nullable = False, unique = True, primary_key =True)

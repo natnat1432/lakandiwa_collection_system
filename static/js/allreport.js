@@ -65,7 +65,10 @@ $(document).ready(function() {
 
     var search_query = document.getElementById("search_query").value;
 
-    window.location.href= `/home?sort_filter=${sort_filter}&student_filter=${student_filter}&excempted_filter=${excempted_filter}&course_filter=${course_filter}&year_filter=${year_filter}&void_filter=${void_filter}&search_query=${search_query}`;
+    var distinct_date = document.getElementById("distinct_date").value;
+    var distinct_day = document.getElementById("distinct_day").value;
+
+    window.location.href= `/allreports?sort_filter=${sort_filter}&student_filter=${student_filter}&excempted_filter=${excempted_filter}&course_filter=${course_filter}&year_filter=${year_filter}&void_filter=${void_filter}&search_query=${search_query}`;
   }
 
   function setDeleteCollectionModal(id)

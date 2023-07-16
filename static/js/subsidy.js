@@ -1,10 +1,13 @@
 
-function setEditSubsidyModal(member_id, subsidy_id, start_date, end_date,subsidy_value){
+function setEditSubsidyModal(member_id, subsidy_id, start_date, end_date,subsidy_value, role){
     select = document.getElementById('edit_member_id'); 
     document.getElementById('edit_subsidy_id').value = subsidy_id;
     document.getElementById('edit_start_date').value = start_date;
     document.getElementById('edit_end_date').value = end_date;
     document.getElementById('edit_subsidy_value').value = subsidy_value;
+
+    select_role = document.getElementById('edit_role');
+
     for(i=0;i<select.options.length; i++)
     {
         var option = select.options[i];
@@ -12,6 +15,17 @@ function setEditSubsidyModal(member_id, subsidy_id, start_date, end_date,subsidy
         if(option.value === member_id)
         {
             option.selected = true;
+            break;
+        }
+    }
+
+    for(j=0;j<select_role.options.length;j++)
+    {
+        var edit_option = select_role.options[j];
+
+        if(edit_option.value == role)
+        {
+            edit_option.selected = true;
             break;
         }
     }
@@ -53,4 +67,16 @@ function setDeleteSubsidyModal(id, firstname, lastname, start_date, end_date) {
 function deleteSubsidy(){
     let id = document.getElementById('delete_id').value;
     location.href="/deletesubsidy/"+id;
+}
+
+function setSignModal(subsidy_id)
+{
+    document.getElementById("subsidy_id_input").value = subsidy_id;
+}
+
+function signSubsidy()
+{
+    var subsidy_id  = document.getElementById("subsidy_id_input").value;
+
+    window.location.href = `/signsubsidy/${subsidy_id}`;
 }

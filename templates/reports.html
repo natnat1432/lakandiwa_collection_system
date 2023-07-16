@@ -4,24 +4,152 @@
 {{title}}
 {% endblock %}
 {% block head %}
+<script src="{{url_for('static', filename = 'js/reports.js')}}"></script>
 {% endblock %}
 
 {% block body %}
 
+{% if message is defined and message is not none %}
+<script>
+    alert('{{message}}')
+</script>
+{% endif %}
 
 <!--Main layout-->
 <main style="margin-top: 58px">
 
- 
+    <!-- Import data modal -->
+    <div class="modal fade" id="importDataModal" tabindex="-1" aria-labelledby="importDataModal" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Import Data</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Please fill all the necessary fields.</p>
+              <hr>
+              <form method="POST" action="/importdata" enctype="multipart/form-data">
+                <h3>Excel File</h3>
+                <input type="file" name="excelFile" accept=".xls, .xlsx" required >
+                <br>
+                <hr>
+                <h3>Authorized Members</h3>
+                <div class="importForm">
+          
+                <h5>Member</h5>
+                <hr>
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Member</b></label>
+                  <select class="form-select" aria-label="Default select example" name="member_id[]" required>
+                    {% for each in members %}
+                    <option value="{{each.id}}">{{each.lastname}}, {{each.firstname}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Start Schedule: </b></label>
+                  <div class="flexer">
+                    <input type="datetime-local" class="form-control" id="start_date" name="start_date[]" required>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Clocked In : </b></label>
+                  <div class="flexer">
+                    <input type="datetime-local" class="form-control" id="clocked_start_date" name="clocked_start_date[]" required>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>End Schedule: </b></label>
+                  <div class="flexer">
+                    <input type="datetime-local" class="form-control" id="end_date" name="end_date[]" required>
+                  </div>
+                </div>
+                <div class="mb-3">
+                    <label for="recipient-name" class="col-form-label"><b>Clocked Out : </b></label>
+                    <div class="flexer">
+                      <input type="datetime-local" class="form-control" id="clocked_end_date" name="clocked_end_date[]" required>
+                    </div>
+                  </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Subsidy Value: </b></label>
+                  <div class="flexer">
+                    <input type="number"  class="form-control" id="" placeholder="Php 00.00" name="subsidy_value[]"
+                      required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Role</b></label>
+                  <select class="form-select" aria-label="Default select example" name="role[]" required>
+                    <option value="cashier">Cashier</option>
+                    <option value="encoder">Encoder</option>
+                  </select>
+                </div>
+            </div>
+       
+            </div>
+           
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Import</button>
+              </form>
+              <br>
+              <button  class="btn btn-primary" onclick="duplicateForm()">Add Authorized Member</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
 
 
 
     <div class="container pt-4">
         <!-- Section: Main chart -->
         <section class="mb-4">
-         
-                <h1>Reports</h1>
-          
+
+            <h1>Reports</h1>
+            {% set allowed_reports = ['Editor in Chief', 'Managing Director'] %}
+            {% if session.position in allowed_reports %}
+            <hr>
+            <p>Import Data</p>
+            <button class="product-card-all"  data-bs-toggle="modal" data-bs-target="#importDataModal">
+                <div class="product-image">
+                    <i class="fa-sharp fa-solid fa-file-excel"></i>
+                </div>
+                <div class="product-details">
+                    <h2 class="product-title">Import Excel</h2>
+                </div>
+            </button>
+            {% endif %}
+            <hr>
+            <p>All Reports</p>
+            <button class="product-card-all" onclick="window.location.href = '/allreports'">
+                <div class="product-image">
+                    <i class="fa-sharp fa-regular fa-calendar"></i>
+                </div>
+                <div class="product-details">
+                    <h2 class="product-title">View All Collections</h2>
+                </div>
+            </button>
+            <hr>
+            <p>Monthly Reports</p>
+            <div class="product-card-container">
+                {% for date in distinct_dates %}
+
+                <button class="product-card" onclick="window.location.href='/reports/{{date.year}}-{{date.month}}'">
+                    <div class="product-image">
+                        <i class="fa-sharp fa-regular fa-calendar"></i>
+                    </div>
+                    <div class="product-details">
+                        <h2 class="product-title">{{date.month | month_word }} {{date.year}}</h2>
+                    </div>
+                </button>
+                {% endfor %}    
+            </div>
         </section>
         <!-- Section: Main chart -->
 

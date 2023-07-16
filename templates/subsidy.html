@@ -28,6 +28,29 @@
   <div class="container pt-4">
     <!-- Section: Main chart -->
     <section class="mb-4">
+      {% set allowed_users = ['Editor in Chief', 'Managing Director'] %}
+      {% if session.position in allowed_users %}
+      <div class="modal fade" id="setSignModal" tabindex="-1" aria-labelledby="setSignModal"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Sign Subsidy</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to sign this subsidy?
+              <input type="text" id="subsidy_id_input" hidden>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+              <button type="submit" class="btn btn-primary" onclick="signSubsidy()">Yes</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
       <div class="modal fade" id="deleteSubsidyModal" tabindex="-1" aria-labelledby="deleteSubsidyModal"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -72,10 +95,7 @@
                   <select class="form-select" aria-label="Default select example" name="member_id" required>
                     {% for each in members %}
                     <option value="{{each.id}}">{{each.lastname}}, {{each.firstname}}</option>
-
                     {% endfor %}
-
-
                   </select>
                 </div>
 
@@ -100,9 +120,13 @@
                   </div>
                 </div>
 
-
-
-
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Role</b></label>
+                  <select class="form-select" aria-label="Default select example" name="role" required>
+                    <option value="cashier">Cashier</option>
+                    <option value="encoder">Encoder</option>
+                  </select>
+                </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -166,8 +190,13 @@
                   </div>
                 </div>
 
-
-
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label"><b>Role</b></label>
+                  <select class="form-select" aria-label="Default select example" name="edit_role" id="edit_role" required>
+                    <option value="cashier">Cashier</option>
+                    <option value="encoder">Encoder</option>
+                  </select>
+                </div>
 
             </div>
             <div class="modal-footer">
@@ -191,16 +220,21 @@
         <thead class="bg-light">
           <tr>
             <th>Member Name</th>
+            <th>Role</th>
             <th>Schedule Start</th>
             <th>Schedule End</th>
+            <th>Clocked In</th>
+            <th>Clocked Out</th>
+            <th>Hours Rendered</th>
             <th>Subsidy Value</th>
+            <th>Signed By</th>
             <th>Action</th>
 
           </tr>
         </thead>
         <tbody>
           {% for member in subsidies %}
-          <tr>
+          <tr {% if member.signed_by is not none %}class="bg-success p-2 text-dark bg-opacity-10"{% else %}class="bg-danger p-2 text-dark bg-opacity-10"{%endif %}>
             <td>
               <div class="d-flex align-items-center">
 
@@ -211,13 +245,18 @@
                 </div>
               </div>
             </td>
-
+            <td>
+              <p class="fw-normal mb-1">
+                <span class="dates"><i class="fa-solid fa-user"></i> {{member.role | title}}</span>
+              </p>
+            </td>
             <td>
               <p class="fw-normal mb-1">
                 <span class="dates"><i class="fa-solid fa-calendar-days"></i> {{member.start_date|format_datetime
                   }}</span>
               </p>
             </td>
+     
             <td>
               <p class="fw-normal mb-1">
                 <span class="dates"><i class="fa-solid fa-calendar-days"></i> {{member.end_date |format_datetime
@@ -225,7 +264,52 @@
               </p>
             </td>
             <td>
+              <p class="fw-normal mb-1">
+                <span class="dates">
+                  {% if member.clocked_start_date is defined and member.clocked_start_date is not none %}
+                  <i class="fa-solid fa-calendar-days"></i> {{member.clocked_start_date | format_datetime }}</span>
+                  {% else %}
+                  <span class="badge badge-danger ms-2">Not yet</span>
+                  {% endif %}
+              </p>
+            </td>
+            <td>
+              <p class="fw-normal mb-1">
+                <span class="dates">
+                  {% if member.clocked_end_date is defined and member.clocked_end_date is not none %}
+                  <i class="fa-solid fa-calendar-days"></i> {{member.clocked_end_date | format_datetime }}</span>
+                  {% else %}
+                  <span class="badge badge-danger ms-2">Not yet</span>
+                  {% endif %}
+              </p>
+            </td>
+            <td>
+              <p class="fw-normal mb-1">
+                <span class="dates">
+                  {% if member.rendered_hours is defined and member.rendered_hours is not none  %}
+                  {{member.rendered_hours}}
+                  {% else %}
+                  <span class="badge badge-danger ms-2">Not yet</span>
+                  {% endif %}
+              </p>
+            </td>
+            <td>
               <p class="fw-normal mb-1">Php <b>{{member.subsidy_value}}</b></p>
+            </td>
+            <td>
+              <p class="fw-normal mb-1"><b>
+                {% if member.signed_by is defined and member.signed_by is not none %}
+                {% for each in members %}
+                {% if each.id == member.signed_by %}
+                <p class="fw-bold mb-1"> {{each.lastname}}, {{each.firstname}} {{each.middlename | first }}</p>
+                <p class="text-muted mb-0">{{each.id}} | {{each.position}}</p>
+                {% endif %}
+                {% endfor %}
+                {% else %}
+                <span class="badge badge-danger ms-2">Not signed yet</span>
+                
+                {% endif %}
+              </b></p>
             </td>
             <td>
               <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"
@@ -235,9 +319,17 @@
               </button>
               <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"
                 data-bs-target="#editSubsidyModal"
-                onclick="setEditSubsidyModal('{{member.id}}','{{member.subsidy_id}}','{{member.start_date}}','{{member.end_date}}', '{{member.subsidy_value}}')">
+                onclick="setEditSubsidyModal('{{member.id}}','{{member.subsidy_id}}','{{member.start_date}}','{{member.end_date}}', '{{member.subsidy_value}}','{{member.role}}')">
                 <i class="fa-solid fa-pen"></i>
               </button>
+              {% set allowed_users = ['Editor in Chief', 'Managing Director'] %}
+              {% if session.position in allowed_users and member.signed_by is none %}
+              <button
+              type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal" data-bs-target="#setSignModal" onclick="setSignModal('{{member.subsidy_id}}')"
+              >
+              <i class="fa-solid fa-signature"></i>
+              </button>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}

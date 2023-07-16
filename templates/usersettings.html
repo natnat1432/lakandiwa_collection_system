@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}
+{{title}}
+{% endblock %}
+{% block head %}
+{% endblock %}
+{% block body %}
+<main style="margin-top: 58px">
+
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Change Password</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <hr>
+                    <form method="POST" action="/changepassword">
+
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>New Password</b></label>
+                            <div class="flexer">
+                                <input type="password" class="form-control" id="new_password" placeholder=""
+                                    name="new_password" required value="">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Confirm Password</b></label>
+                            <div class="flexer">
+                                <input type="password" class="form-control" id="confirm_password" placeholder=""
+                                    name="confirm_password" required value="">
+                            </div>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Change</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+    <div class="container pt-4">
+   
+        
+        <!-- Section: Main chart -->
+        <section class="mb-4">
+            <h1>User Settings</h1>
+            <hr>
+            {% if session.position != 'admin' %}
+            <button class="btn btn-primary" style="width:250px;" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fa-solid fa-money-bill"></i> Change Password</button>
+            {% endif %}
+            {% if message is defined and message is not none %}
+            <br>  <p style="color:red;">{{message}}</p> <br>
+          {% endif %}
+          
+
+        </section>
+    </div>
+</main>
+
+{% endblock %}

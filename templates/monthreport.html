@@ -1,0 +1,59 @@
+{% extends 'base.html'%}
+
+{% block title %}
+{{title}}
+{% endblock %}
+{% block head %}
+{% endblock %}
+{% block sidenav %}
+{% endblock %}
+
+{% block body %}
+
+
+<!--Main layout-->
+<main style="margin-top: 58px">
+
+
+
+   <a href="/reports"><i class="fa-solid fa-arrow-left"></i> Back</a>
+
+    <div class="container pt-4">
+        <!-- Section: Main chart -->
+        <section class="mb-4">
+
+             <!-- Heading -->
+            <div class="p-5 bg-light mb-4">
+                <h1 class="">{{distinct_date[1] | month_word}} {{distinct_date[0]}} Report</h1>
+                <!-- Breadcrumb -->
+                <nav class="d-flex">
+                <h6 class="mb-0">
+                    <a href="/reports" class="text-reset"><u>Reports</u></a>
+                    <span>/</span>
+                    <a href="" class="text-reset"> <u>{{distinct_date[1] | month_word}} {{distinct_date[0]}}</u></a>
+                </h6>
+                </nav>
+                <!-- Breadcrumb -->
+            </div>
+            <!-- Heading -->
+      
+            <hr> <br>
+            <div class="product-card-container">
+                {% for day in distinct_days %}
+                <button class="product-card" onclick="window.location.href='/reports/{{distinct_date[0]}}-{{distinct_date[1]}}/{{day.day}}' ">
+                    <div class="product-image">
+                        <i class="fa-sharp fa-regular fa-calendar"></i>
+                    </div>
+                    <div class="product-details">
+                        <h2 class="product-title">{{distinct_date[1] | month_word }} {{day.day}}</h2>
+                    </div>
+                </button>
+                {% endfor %}
+            </div>
+        </section>
+        <!-- Section: Main chart -->
+
+    </div>
+</main>
+<!--Main layout-->
+{% endblock %}
