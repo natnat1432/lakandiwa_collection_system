@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
 from config import app
 from config import db
-from models import User, Subsidy, Collection, CollectionValue, SubsidyValue
+from models import User, Subsidy, Collection, CollectionValue, SubsidyValue, Semester
 
 
 from datetime import datetime, date, timedelta
@@ -9,7 +9,7 @@ from sqlalchemy import and_, func, extract, or_
 
 import environment
 
-from util import getQuotes, formatTime, is_table_empty, DecimalEncoder, toDateTime, getnametodict
+from util import getQuotes, formatTime, is_table_empty, DecimalEncoder, toDateTime, getnametodict,toDateTimeDay
 
 import json
 
@@ -28,7 +28,20 @@ def setSettings():
         db.session.add(collection_value)
         db.session.commit()
 
+@app.template_filter('get_semester')
+def get_semester(dt):
+    if dt is not None or dt != 'None':
+        semester = Semester.query.filter_by(semester_id = int(dt)).first()
 
+        return f'{format_semester(semester.semester)}, S.Y. {semester.sy_start}-{semester.sy_end}'
+    else:
+        return None
+@app.template_filter('format_semester')
+def format_semester(dt):   
+    if dt == '1':
+        return '1st Semester'
+    else:
+        return '2nd Semester' 
 @app.template_filter('format_datetime')
 def format_datetime(dt):
     return dt.strftime('%m-%d-%Y %I:%M %p')
@@ -179,7 +192,8 @@ def home():
         User.position,
         Collection.collection_value,
         Collection.voided,
-        Collection.created_at
+        Collection.created_at,
+        Collection.semester,
     ).join(User, User.id == Collection.member_id).filter(
         and_(
             func.date(Collection.created_at) == current_datetime.date(),
@@ -249,10 +263,10 @@ def home():
                 total_cash_on_hand = total_cash_on_hand - each.subsidy_value
             total_subsidy = total_subsidy + each.subsidy_value
 
-    
+    semesters = Semester.query.all()
 
 
-    return render_template('home.html', title=title, course=environment.course, collections=collections, message=message,
+    return render_template('home.html', title=title, course=environment.course, collections=collections, message=message, semesters = semesters,
                            total_receipts = total_receipts, total_excempted = total_exempted, total_voided=total_voided, total_number_of_receipts=total_number_of_receipts, total_subsidy=total_subsidy, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand,
                            authorized_member=authorized_member,search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter,
                            exempted=environment.exempted, quote=quote, exist_subsidy=exist_subsidy, current_datetime=current_datetime)
@@ -364,6 +378,7 @@ def addcollection():
     lastname = request.form['lastname']
     course = request.form['course']
     year = request.form['year']
+    semester = request.form['semester']
 
     exempted_checkbox = None
     exempted_category = None
@@ -371,14 +386,14 @@ def addcollection():
         exempted_checkbox = request.form['exempted_checkbox']
         exempted_category = request.form['exempted_category']
 
-    if acknowledgementID and id_number and firstname and lastname and course and year:
+    if acknowledgementID and id_number and firstname and lastname and course and year and semester:
         if exempted_checkbox == 'yes':
             exempted_category = request.form['exempted_category']
 
     else:
         return abort(404, "Page not found")
-
-    add_collection = Collection(acknowledgementID, id_number, firstname, middlename, lastname, course, year, exempted_category, session['user_id'])
+    print('SEMEESTERRRRR : ', semester)
+    add_collection = Collection(acknowledgementID, id_number, firstname, middlename, lastname, course, year, exempted_category, session['user_id'],int(semester))
     db.session.add(add_collection)
     db.session.commit()
 
@@ -402,7 +417,7 @@ def addcollectiondayreport():
 
     date = request.form['distinct_date']
     day = request.form['distinct_day']
-
+    semester =request.form['semester']
     date_variable = datetime.datetime.strptime(f'{date}-{day}', '%Y-%m-%d').date()
 
     exempted_checkbox = None
@@ -411,14 +426,14 @@ def addcollectiondayreport():
         exempted_checkbox = request.form['exempted_checkbox']
         exempted_category = request.form['exempted_category']
 
-    if acknowledgementID and id_number and firstname and lastname and course and year:
+    if acknowledgementID and id_number and firstname and lastname and course and year and semester:
         if exempted_checkbox == 'yes':
             exempted_category = request.form['exempted_category']
 
     else:
         return abort(404, "Page not found")
 
-    addCol = Collection(acknowledgementID, id_number, firstname, middlename, lastname, course, year, exempted_category, session['user_id'])
+    addCol = Collection(acknowledgementID, id_number, firstname, middlename, lastname, course, year, exempted_category, session['user_id'], int(semester))
     db.session.add(addCol)
     db.session.commit()
 
@@ -445,14 +460,14 @@ def addcollectionallreport():
     lastname = request.form['lastname']
     course = request.form['course']
     year = request.form['year']
-
+    semester =request.form['semester']
     exempted_checkbox = None
     exempted_category = None
     if 'exempted_checkbox' in request.form:
         exempted_checkbox = request.form['exempted_checkbox']
         exempted_category = request.form['exempted_category']
 
-    if acknowledgementID and id_number and firstname and lastname and course and year:
+    if acknowledgementID and id_number and firstname and lastname and course and year and semester:
         if exempted_checkbox == 'yes':
             exempted_category = request.form['exempted_category']
 
@@ -460,7 +475,7 @@ def addcollectionallreport():
         return abort(404, "Page not found")
 
     add_collection = Collection(acknowledgementID, id_number, firstname,
-                                middlename, lastname, course, year, exempted_category, session['user_id'])
+                                middlename, lastname, course, year, exempted_category, session['user_id'], int(semester))
     db.session.add(add_collection)
     db.session.commit()
 
@@ -483,8 +498,9 @@ def editcollection():
     year = request.form['year']
     exempted_checkbox = None
     exempted_category = None
+    semester = request.form['semester']
 
-    if acknowledgementID and id_number and firstname and lastname and course and year:
+    if acknowledgementID and id_number and firstname and lastname and course and year and semester:
         if exempted_checkbox == 'yes':
             exempted_category = request.form['exempted_category']
 
@@ -501,6 +517,7 @@ def editcollection():
         edit_collection.course = course
         edit_collection.year = year
         edit_collection.excempted_category = exempted_category
+        edit_collection.semester = semester
         db.session.commit()
 
         return redirect(url_for('home', message='Record updated successfully'))
@@ -526,8 +543,9 @@ def editcollectiondayreport():
     exempted_category = None
     date = request.form['distinct_date']
     day = request.form['distinct_day']
+    semester = request.form['semester']
 
-    if acknowledgementID and id_number and firstname and lastname and course and year:
+    if acknowledgementID and id_number and firstname and lastname and course and year and semester:
         if exempted_checkbox == 'yes':
             exempted_category = request.form['exempted_category']
 
@@ -544,6 +562,7 @@ def editcollectiondayreport():
         edit_collection.course = course
         edit_collection.year = year
         edit_collection.excempted_category = exempted_category
+        edit_collection.semester = semester
         db.session.commit()
 
         return redirect(url_for('daymonthreport', distinct_date=date, distinct_day=day, message='Record updated successfully'))
@@ -567,7 +586,7 @@ def editcollectionallreport():
     year = request.form['year']
     exempted_checkbox = None
     exempted_category = None
-
+    semester = request.form['semester']
     if acknowledgementID and id_number and firstname and lastname and course and year:
         if exempted_checkbox == 'yes':
             exempted_category = request.form['exempted_category']
@@ -585,6 +604,7 @@ def editcollectionallreport():
         edit_collection.course = course
         edit_collection.year = year
         edit_collection.excempted_category = exempted_category
+        edit_collection.semester = semester
         db.session.commit()
 
         return redirect(url_for('allreports', message='Record updated successfully'))
@@ -936,7 +956,8 @@ def daymonthreport(distinct_date: str, distinct_day: str):
         User.position,
         Collection.collection_value,
         Collection.voided,
-        Collection.created_at
+        Collection.created_at,
+        Collection.semester,
     ).join(User, User.id == Collection.member_id).filter(
         and_(
             func.date(Collection.created_at) == date_variable,
@@ -1009,10 +1030,10 @@ def daymonthreport(distinct_date: str, distinct_day: str):
             if total_cash_on_hand >= each.subsidy_value and total_cash_on_hand is not None and each.subsidy_value is not None:
                 total_cash_on_hand = total_cash_on_hand - each.subsidy_value
             total_subsidy = total_subsidy + each.subsidy_value
-
+    semesters = Semester.query.all()
     members = User.query.all()
 
-    return render_template('dayreport.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy,
+    return render_template('dayreport.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy, semesters = semesters,
                            search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter, members=members, total_voided=total_voided,
                            exempted=environment.exempted, exist_subsidy=exist_subsidy, current_datetime=current_datetime, distinct_date=distinct_date, distinct_day=distinct_day)
 
@@ -1078,7 +1099,8 @@ def allreports():
         User.position,
         Collection.collection_value,
         Collection.voided,
-        Collection.created_at
+        Collection.created_at,
+        Collection.semester,
     ).join(User, User.id == Collection.member_id).filter(
         and_(
             # func.date(Collection.created_at) == date_variable,
@@ -1153,8 +1175,8 @@ def allreports():
             total_subsidy = total_subsidy + each.subsidy_value
 
     members = User.query.all()
-
-    return render_template('allreports.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy,
+    semesters = Semester.query.all()
+    return render_template('allreports.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy, semesters=semesters, 
                            search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter, members=members, total_voided=total_voided,
                            exempted=environment.exempted, current_datetime=current_datetime)
 
@@ -1210,18 +1232,23 @@ def importdata():
         df = pd.read_excel(file, sheet_name='Sheet1')
         for index, each in df.iterrows():
             for i in range(len(each)):
-                if str(each[i]) == 'nan':
+                if str(each[i]) == 'nan' or len(str(each[i]).replace(' ',''))== 0:
                     each[i] = None
             acknowledgementID = each[3].replace('No.', '').strip()
 
             name = getnametodict(str(each[0]))
-
+            year = 'N/A'
+            course = 0
+      
+            if '-' in str(each[2]):
+                course = each[2].split('-')[0].strip()
+                year = each[2].split('-')[1].strip()
             if name is not None:
-                new_collection = Collection(acknowledgementID, each[1], name['firstname'], name['middlename'], name['lastname'], each[2].split('-')[0], each[2].split('-')[1], each[4], encoder_id)
+                new_collection = Collection(acknowledgementID, each[1], name['firstname'], name['middlename'], name['lastname'], course,year, each[4], encoder_id, int(each[6]))
                 db.session.add(new_collection)
                 db.session.commit()
             else:
-                new_collection = Collection(acknowledgementID, each[1], each[0].split(',')[1], '', each[0].split(',')[0], each[2].split('-')[0], each[2].split('-')[1], each[4], encoder_id)
+                new_collection = Collection(acknowledgementID, each[1], each[0], '', '', course, year, each[4], encoder_id, int(each[6]))
                 db.session.add(new_collection)
                 db.session.commit()
             existing_collection = Collection.query.filter_by(acknowledgementID=acknowledgementID).first()
@@ -1248,7 +1275,8 @@ def settings():
     subsidy_amount = SubsidyValue.query.first()
     title = "Settings"
     message = request.args.get('message')
-    return render_template("settings.html", title=title, collection_amount=collection_amount.collection_value, subsidy_amount=subsidy_amount.subsidy_value, message=message)
+    semesters = Semester.query.all()
+    return render_template("settings.html", title=title, collection_amount=collection_amount.collection_value, subsidy_amount=subsidy_amount.subsidy_value, message=message, semesters=semesters)
 
 
 @app.route('/usersettings')
@@ -1351,7 +1379,43 @@ def deletecollectionallreport():
     else:
         return redirect(url_for('allreports', message='Collection record does not exist'))
 
+@app.route('/addsemester', methods=['POST'])
+def addsemester():
+    semester = request.form['semester']
+    sy_start = request.form['sy_start']
+    sy_end = request.form['sy_end']
 
+    print('CHECK ',int(sy_start) > int(sy_end))
+    if semester and sy_start and sy_end:
+        if int(sy_start) >= int(sy_end):
+            return redirect(url_for('settings', message='School year end must be newer than school year start'))
+        if int(sy_start) < int(sy_end):
+            check_existing = db.session.query(Semester).filter_by(semester = semester, sy_start = sy_start, sy_end=sy_end).first()
+            if check_existing:
+                return redirect(url_for('settings', message='Semester already exists'))
+            new_semester = Semester(semester, sy_start,sy_end)
+            db.session.add(new_semester)
+            db.session.commit()
+
+            return redirect(url_for('settings', message='Semester added successfully'))
+    else:
+        return redirect(url_for('settings', message='Error adding semester'))
+@app.route('/deletedayrecord', methods=['POST'])
+def deletedayrecord():
+    distinct_date= request.form['distinct_date']
+    distinct_day = request.form['distinct_day']
+    
+    dayrecords = db.session.query(Collection).filter( func.date(Collection.created_at) == toDateTimeDay(f'{distinct_date}-{distinct_day}').date()).all()
+    subsidy_records = db.session.query(Subsidy).filter(func.date(Subsidy.start_date) == toDateTimeDay(f'{distinct_date}-{distinct_day}').date()).all()
+
+    for each in dayrecords:
+        db.session.delete(each)
+        db.session.commit()
+
+    for each in subsidy_records:
+        db.session.delete(each)
+        db.session.commit()
+    return redirect(url_for('monthreport', distinct_date=distinct_date, message='Day record successfully deleted'))
 @app.route('/logout')
 def logout():
     session.clear()
@@ -1368,4 +1432,4 @@ def after_request(response):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=7000)

@@ -209,6 +209,7 @@
 
                             </select>
                         </div>
+                
 
                         <div class="mb-3">
                             <div class="form-check">
@@ -231,6 +232,14 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="semester" class="col-form-label"><b>Semester</b></label>
+                            <select class="form-select" aria-label="" name="semester" id="semester" required>
+                                {% for sem in semesters %}
+                                <option value="{{sem.semester_id}}">{{sem.semester | format_semester }}, S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
                 </div>
                 <div class="modal-footer">
@@ -321,6 +330,15 @@
                                     {% endfor %}
                                 </select>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="semester" class="col-form-label"><b>Semester</b></label>
+                            <select class="form-select" aria-label="" name="semester" id="edit_semester" required>
+                                {% for sem in semesters %}
+                                <option value="{{sem.semester_id}}">{{sem.semester | format_semester }}, S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                                {% endfor %}
+                            </select>
                         </div>
 
 
@@ -541,6 +559,7 @@
                         <th>Excempted Category(if any.)</th>
                         <th>Voided</th>
                         <th>Added by</th>
+                        <th>Semester</th>
                         <th>Created at</th>
                         {% if exist_subsidy.role == 'encoder' %}
                         <th>Actions</th>
@@ -589,6 +608,13 @@
                             <p class="badge badge-success rounded-pill d-inline">{{collection.id}} |
                                 {{collection.position}}</p>
                         </td>
+                        <td><b>
+                            {% if collection.semester is defined and collection.semester is not none %}
+                            {{collection.semester | get_semester }}
+                            {% else %}
+                            None
+                            {% endif %}
+                        </b></td>
                         <td><b>{{collection.created_at | format_datetime}}</b></td>
 
                         {% if exist_subsidy.role == 'encoder' %}
@@ -600,7 +626,7 @@
                             </button>
                             <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"
                                 data-bs-target="#editCollectionModal"
-                                onclick="setEditCollectionModal('{{collection.acknowledgementID}}','{{collection.id_number}}','{{collection.student_firstname}}','{{collection.student_middlename}}','{{collection.student_lastname}}','{{collection.course}}','{{collection.year}}','{{collection.excempted_category}}')">
+                                onclick="setEditCollectionModal('{{collection.acknowledgementID}}','{{collection.id_number}}','{{collection.student_firstname}}','{{collection.student_middlename}}','{{collection.student_lastname}}','{{collection.course}}','{{collection.year}}','{{collection.excempted_category}}', '{{collection.semester}}')">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"

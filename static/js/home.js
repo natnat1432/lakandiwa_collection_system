@@ -73,7 +73,7 @@ $(document).ready(function() {
     document.getElementById("delete_collection_id").value = id;
   }
 
-  function setEditCollectionModal(ackID,studentID,firstname,middlename,lastname,course,year,category)
+  function setEditCollectionModal(ackID,studentID,firstname,middlename,lastname,course,year,category, semester_id)
   {
     document.getElementById("edit_collection_ackID").value = ackID;
     document.getElementById("edit_collection_studentID").value = studentID;
@@ -82,6 +82,7 @@ $(document).ready(function() {
     document.getElementById("edit_collection_lname").value = lastname;
     document.getElementById("edit_collection_course").value = course;
     document.getElementById("edit_collection_year").value = year;
+    document.getElementById("edit_semester").value = semester_id;
     
     if(category != "None")
     {

@@ -32,6 +32,9 @@ def is_table_empty(table):
 def toDateTime(date:str):
     return datetime.strptime(date,'%Y-%m-%dT%H:%M')
 
+def toDateTimeDay(date:str):
+    return datetime.strptime(date,'%Y-%m-%d')
+
 
 def getnametodict(name):
     # Pattern 1: lastname, firstname mi.

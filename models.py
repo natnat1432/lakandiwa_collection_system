@@ -57,10 +57,13 @@ class Collection(db.Model):
     member_id = db.Column(db.String(8), db.ForeignKey('user.id'), nullable=False)
     collection_value = db.Column(db.Numeric(precision=10, scale=2), db.ForeignKey('collection_value.collection_value'), nullable = True)
     voided = db.Column(db.String(12), nullable=False)
+    semester = db.Column(db.Integer, db.ForeignKey('semester.semester_id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
     #voided_at //datetime where book is voided
     created_at = db.Column(db.DateTime, nullable = False)
+    semester_rel = db.relationship('Semester')
 
-    def __init__(self, acknowledgementID, id_number, firstname, middlename, lastname, course, year, excempted_category, member_id):
+    def __init__(self, acknowledgementID, id_number, firstname, middlename, lastname, course, year, excempted_category, member_id, semester):
         self.acknowledgementID = acknowledgementID
         self.id_number = id_number
         self.student_firstname = firstname
@@ -73,13 +76,8 @@ class Collection(db.Model):
         collection_value = CollectionValue.query.first()
         self.collection_value = collection_value.collection_value
         self.voided = "no"
+        self.semester = semester
         self.created_at = datetime.now()
-
-    
-
-
- 
-    
 
 class SubsidyValue(db.Model):
     subsidy_value = db.Column(db.Numeric(precision=10, scale=2), nullable = False, unique = True, primary_key =True)
@@ -92,6 +90,17 @@ class CollectionValue(db.Model):
     collection = db.relationship('Collection', backref='CollectionValue', lazy=True)
     def __init__(self, collection_value):
         self.collection_value = collection_value
+        
+class Semester(db.Model):
+    semester_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    semester = db.Column(db.String(30), nullable=False)
+    sy_start = db.Column(db.String(4), nullable=False)
+    sy_end = db.Column(db.String(4), nullable=False)
+    collections = db.relationship('Collection', foreign_keys='Collection.semester', backref='semesters', lazy=True)
+    def __init__(self, semester, sy_start, sy_end):
+        self.semester = semester
+        self.sy_start = sy_start
+        self.sy_end = sy_end
 
 
         

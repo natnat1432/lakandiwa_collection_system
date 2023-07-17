@@ -23,6 +23,32 @@
   
     {% set allowed_reports = ['Editor in Chief', 'Managing Director'] %}
     {% if session.position in allowed_reports %}
+    <div class="modal fade" id="deleteDayModal" tabindex="-1" aria-labelledby="deleteDayModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Record</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                  Are you sure you want to delete all records of this day?
+                  <form action="/deletedayrecord" method="POST">
+                    <input type="text" id="distinct_date" name="distinct_date"  value="{{distinct_date}}" hidden>
+                    <input type="text" id="distinct_day" name="distinct_day"  value="{{distinct_day}}" hidden>
+                </div>
+
+               
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-primary">Yes</button>
+                </form>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="voidTicketModal" tabindex="-1" aria-labelledby="voidTicketModal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -159,6 +185,15 @@ aria-hidden="true">
                         </select>
                     </div>
                 </div>
+                
+                <div class="mb-3">
+                    <label for="semester" class="col-form-label"><b>Semester</b></label>
+                    <select class="form-select" aria-label="" name="semester" id="semester" required>
+                        {% for sem in semesters %}
+                        <option value="{{sem.semester_id}}">{{sem.semester | format_semester }}, S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
 
         </div>
@@ -254,6 +289,15 @@ aria-hidden="true">
                         </select>
                     </div>
                 </div>
+                <div class="mb-3">
+                    <label for="semester" class="col-form-label"><b>Semester</b></label>
+                    <select class="form-select" aria-label="" name="semester" id="edit_semester" required>
+                        {% for sem in semesters %}
+                        <option value="{{sem.semester_id}}">{{sem.semester | format_semester }}, S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
 
 
         </div>
@@ -287,6 +331,7 @@ aria-hidden="true">
                     <span>/</span>
                     <a href="" class="text-reset"> <u>{{distinct_date.split('-')[1] | month_word}} {{distinct_day}}, {{distinct_date.split('-')[0]}}</u></a>
                 </h6>
+                <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteDayModal"><i class="fa-solid fa-trash me-2"></i> Delete day record</button>
                 </nav>
                 <!-- Breadcrumb -->
                 <hr>
@@ -456,6 +501,7 @@ aria-hidden="true">
                         <th>Excempted Category(if any.)</th>
                         <th>Voided</th>
                         <th>Added by</th>
+                        <th>Semester</th>
                         <th>Created at</th>
                         {% set allowed_reports = ['Editor in Chief', 'Managing Director'] %}
                         {% if session.position in allowed_reports %}
@@ -505,6 +551,14 @@ aria-hidden="true">
                             <p class="badge badge-success rounded-pill d-inline">{{collection.id}} |
                                 {{collection.position}}</p>
                         </td>
+                        <td><b>
+                            {% if collection.semester is defined and collection.semester is not none %}
+                            {{collection.semester | get_semester }}
+                            {% else %}
+                            None
+                            {% endif %}
+                        </b></td>
+
                         <td><b>{{collection.created_at | format_datetime}}</b></td>
 
 
@@ -518,7 +572,7 @@ aria-hidden="true">
                             </button>
                             <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"
                                 data-bs-target="#editCollectionModal"
-                                onclick="setEditCollectionModal('{{collection.acknowledgementID}}','{{collection.id_number}}','{{collection.student_firstname}}','{{collection.student_middlename}}','{{collection.student_lastname}}','{{collection.course}}','{{collection.year}}','{{collection.excempted_category}}')">
+                                onclick="setEditCollectionModal('{{collection.acknowledgementID}}','{{collection.id_number}}','{{collection.student_firstname}}','{{collection.student_middlename}}','{{collection.student_lastname}}','{{collection.course}}','{{collection.year}}','{{collection.excempted_category}}', '{{collection.semester}}')">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"

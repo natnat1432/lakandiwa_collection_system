@@ -7,9 +7,69 @@
 
 {% block body %}
 <!--Main layout-->
+<script>
+    async function getYear() {
+      const currentYear = await new Date().getFullYear();
+      document.getElementById('sy_start').value = currentYear;
+      document.getElementById('sy_end').value = currentYear;
+    }
+  
+    window.onload = function() {
+      getYear();
+    };
+  </script>
+
+{% if message is defined and message is not none %}
+<script>
+    alert('{{message}}')
+</script>
+{% endif %}
 <main style="margin-top: 58px">
 
 
+    <div class="modal fade" id="addSemesterModal" tabindex="-1" aria-labelledby="addSemesterModal"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Semester</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <hr>
+                    <form method="POST" action="/addsemester">
+
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>Semester</b></label>
+                            <div class="flexer">
+                              
+                             <select name="semester" id="semester" class="form-select">
+                                <option value="1">1st Semester</option>
+                                <option value="2">2nd Semester</option>
+                             </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"><b>School Year</b></label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="basic-addon1">Start</span>
+                                <input type="number" class="form-control"  aria-label="" aria-describedby="basic-addon1" name="sy_start" id="sy_start">
+                              </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="basic-addon1">End</span>
+                                <input type="number" class="form-control"  aria-describedby="basic-addon1"  name="sy_end" id="sy_end">
+                              </div>
+                              
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="updateSubsidyModal" tabindex="-1" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -89,8 +149,29 @@
             <button class="btn btn-primary" style="width:250px;" data-bs-toggle="modal" data-bs-target="#updateCollectionModal"><i class="fa-solid fa-money-bill"></i> Change
                 Collection Amount</button>
             <br>
-
-
+            <br>
+            <hr>
+            <h3>
+                Semesters
+            </h3>
+            <button class="btn btn-primary" style="width:250px;" data-bs-toggle="modal" data-bs-target="#addSemesterModal"><i class="fa-solid fa-plus"></i> Add Semester</button>
+            <table class="table">
+                <thead>
+                    <th scope="col">Semester ID</th>
+                    <th scope="col">Semester</th>
+                    <th scope="col">School Year</th>
+                </thead>
+                <tbody>
+                    {% for sem in semesters %}
+                    <tr>
+                        <td>{{sem.semester_id}}</td>
+                        <td>{{sem.semester}}</td>
+                        <td>S.Y. {{sem.sy_start}} - {{sem.sy_end}}</td>
+                    </tr>
+                    {% endfor %}
+           
+                </tbody>
+            </table>
         </section>
     </div>
 </main>
