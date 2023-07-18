@@ -5,7 +5,7 @@ from models import User, Subsidy, Collection, CollectionValue, SubsidyValue, Sem
 
 
 from datetime import datetime, date, timedelta
-from sqlalchemy import and_, func, extract, or_
+from sqlalchemy import Integer, and_, func, extract, or_
 
 import environment
 
@@ -15,6 +15,8 @@ import json
 
 import calendar
 import pandas as pd
+import re
+from decimal import Decimal
 
 
 def setSettings():
@@ -624,9 +626,10 @@ def subsidy():
     members = User.query.filter_by(status="active").all()
     current_datetime = datetime.datetime.now().date()
     subsidy_amount = SubsidyValue.query.first()
+    semesters = Semester.query.all()
     subsidies = db.session.query(Subsidy.subsidy_id, User.id, User.firstname, User.lastname, User.position, Subsidy.start_date,
-                                 Subsidy.end_date, Subsidy.clocked_start_date, Subsidy.clocked_end_date, Subsidy.rendered_hours, Subsidy.subsidy_value, Subsidy.signed_by, Subsidy.role).join(Subsidy, User.id == Subsidy.member_id).order_by(Subsidy.subsidy_id.desc()).all()
-    return render_template('subsidy.html', title=title, members=members, message=message, subsidies=subsidies, current_datetime=current_datetime, subsidy_amount=subsidy_amount.subsidy_value)
+                                 Subsidy.end_date, Subsidy.clocked_start_date, Subsidy.clocked_end_date, Subsidy.rendered_hours, Subsidy.subsidy_value, Subsidy.signed_by, Subsidy.role, Subsidy.semester).join(Subsidy, User.id == Subsidy.member_id).order_by(Subsidy.start_date.desc()).all()
+    return render_template('subsidy.html', title=title, members=members, message=message, semesters = semesters,subsidies=subsidies, current_datetime=current_datetime, subsidy_amount=subsidy_amount.subsidy_value)
 
 
 @app.route('/addsubsidy', methods=['POST'])
@@ -640,8 +643,9 @@ def addsubsidy():
     start_date = request.form['start_date']
     end_date = request.form['end_date']
     role = request.form['role']
+    semester = request.form['semester']
     message = None
-    if member_id and start_date and end_date:
+    if member_id and start_date and end_date and semester:
 
         if end_date < start_date:
             return redirect(url_for('subsidy', message='End date must not be earlier than startdate'))
@@ -659,7 +663,7 @@ def addsubsidy():
             if exist_subsidy:
                 message = "This member has a subsidy set within these schedule set"
             else:
-                add_subsidy = Subsidy(member_id, role, start_date, end_date)
+                add_subsidy = Subsidy(member_id, role, start_date, end_date, semester)
                 db.session.add(add_subsidy)
                 db.session.commit()
 
@@ -690,9 +694,10 @@ def editsubsidy():
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
     role = request.form['edit_role']
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
+    semester = request.form['semester']
     message = None
 
-    if subsidy_id and member_id and start_date and end_date and subsidy_value:
+    if subsidy_id and member_id and start_date and end_date and subsidy_value and semester:
         subsidy = Subsidy.query.get(subsidy_id)
         subsidy.member_id = member_id
 
@@ -700,6 +705,7 @@ def editsubsidy():
         subsidy.end_date = end_date
         subsidy.subsidy_value = subsidy_value
         subsidy.role = role
+        subsidy.semester = semester
         db.session.commit()
         message = "Subsidy updated successfully"
         return redirect(url_for('subsidy', message=message))
@@ -865,8 +871,9 @@ def reports():
     ).distinct().order_by('year', 'month').all()
     title = "Reports"
     members = db.session.query(User).all()
+    semesters = db.session.query(Semester).all()
     message = request.args.get('message')
-    return render_template("reports.html", title=title, distinct_dates=distinct_dates, members=members, message=message)
+    return render_template("reports.html", title=title, distinct_dates=distinct_dates, members=members, message=message, semesters=semesters)
 
 
 @app.route('/reports/<distinct_date>')
@@ -940,7 +947,19 @@ def daymonthreport(distinct_date: str, distinct_day: str):
             Subsidy.member_id == session['user_id']
         )
     ).first()
-
+    
+    semesters_this_day = db.session.query(Collection.semester).filter(func.date(Collection.created_at) == date_variable ).group_by(Collection.semester).all()
+    sems = []
+    for each in semesters_this_day:
+        sems.append(int(each[0]))
+    each_sem_total = {}
+    for each in sems:
+        each_sem_total[str(each)] = db.session.query(func.coalesce(func.sum(Collection.collection_value),0)).filter(and_(func.date(
+        Collection.created_at) == date_variable, Collection.excempted_category.is_(None), Collection.voided.is_('no'), Collection.semester.is_(each))).scalar()
+    
+    for k,v in each_sem_total.items():
+        print(k,v)
+    
     collections = db.session.query(
         Collection.acknowledgementID,
         Collection.id_number,
@@ -1034,7 +1053,7 @@ def daymonthreport(distinct_date: str, distinct_day: str):
     members = User.query.all()
 
     return render_template('dayreport.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy, semesters = semesters,
-                           search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter, members=members, total_voided=total_voided,
+                         each_sem_total=each_sem_total, search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter, members=members, total_voided=total_voided,
                            exempted=environment.exempted, exist_subsidy=exist_subsidy, current_datetime=current_datetime, distinct_date=distinct_date, distinct_day=distinct_day)
 
 
@@ -1056,7 +1075,7 @@ def allreports():
     course_filter = None
     year_filter = None
     void_filter = None
-
+    semester_filter = None
     search_query = request.args.get('search_query')
     sort_filter = request.args.get('sort_filter')
     student_filter = request.args.get('student_filter')
@@ -1064,6 +1083,8 @@ def allreports():
     course_filter = request.args.get('course_filter')
     year_filter = request.args.get('year_filter')
     void_filter = request.args.get('void_filter')
+    semester_filter = request.args.get('semester_filter')
+
 
     if not sort_filter:
         sort_filter = 'desc'
@@ -1082,8 +1103,12 @@ def allreports():
     if not search_query:
         search_query = ''
 
+    if semester_filter is None or len(semester_filter) == 0:
+        semester_filter = 'all'
+
     current_datetime = datetime.datetime.now()
 
+    all_semesters = db.session.query(Semester).all()
     collections = db.session.query(
         Collection.acknowledgementID,
         Collection.id_number,
@@ -1137,20 +1162,53 @@ def allreports():
             Collection.voided.is_(
                 void_filter) if void_filter != 'all' else None,
             Collection.voided.isnot(None) if void_filter == 'all' else None,
+        ),
+        or_(
+            Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Collection.semester.isnot(None) if semester_filter == 'all' else None,
         )
-    ).order_by(Collection.created_at.desc() if sort_filter == 'desc' else Collection.created_at).all()
+    ).order_by(Collection.acknowledgementID.cast(Integer).desc() if sort_filter == 'desc' else Collection.acknowledgementID.cast(Integer)).all()
 
     total_receipts = db.session.query(
-        func.count()).select_from(Collection).scalar()
+        func.count()).select_from(Collection).filter(and_(    
+         or_(
+            Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Collection.semester.isnot(None) if semester_filter == 'all' else None,
+        )
+        )).scalar()
     total_exempted = db.session.query(func.count()).select_from(Collection).filter(
-        and_(Collection.excempted_category.isnot(None), Collection.voided.is_('no'))).scalar()
+        and_(Collection.excempted_category.isnot(None), Collection.voided.is_('no')),
+          or_(
+            Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Collection.semester.isnot(None) if semester_filter == 'all' else None,
+        ),).scalar(),
+    if total_exempted != None:
+        total_exempted = total_exempted[0]
+    if total_exempted is None:
+        total_excempted = 0
+    
     total_voided = db.session.query(func.count()).select_from(
-        Collection).filter(and_(Collection.voided.is_('yes'))).scalar()
+        Collection).filter(and_(Collection.voided.is_('yes')),
+                               or_(
+            Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Collection.semester.isnot(None) if semester_filter == 'all' else None,
+        )
+        ).scalar()
     total_number_of_receipts = db.session.query(func.count()).select_from(Collection).filter(
-        and_(Collection.excempted_category.is_(None), Collection.voided.is_('no'))).scalar()
+        and_(Collection.excempted_category.is_(None), Collection.voided.is_('no')),     or_(
+            Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Collection.semester.isnot(None) if semester_filter == 'all' else None,
+        )
+        ).scalar()
     total_subsidy = 0
     total_amount_to_be_collected = db.session.query(func.coalesce(func.sum(Collection.collection_value),0)).filter(
-        and_(Collection.excempted_category.is_(None), Collection.voided.is_('no'))).scalar()
+        and_(Collection.excempted_category.is_(None), Collection.voided.is_('no'),
+             or_(
+         Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Collection.semester.isnot(None) if semester_filter == 'all' else None,
+             ),
+             )
+        ).scalar()
     total_cash_on_hand = total_amount_to_be_collected
     authorized_member = db.session.query(
         Subsidy.subsidy_id,
@@ -1164,8 +1222,12 @@ def allreports():
         Subsidy.rendered_hours,
         Subsidy.end_date,
         Subsidy.subsidy_value,
+        Subsidy.semester,
         Subsidy.signed_by
-    ).join(User, User.id == Subsidy.member_id).all()
+    ).filter(    or_(
+            Subsidy.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Subsidy.semester.isnot(None) if semester_filter == 'all' else None,
+        )).join(User, User.id == Subsidy.member_id).all()
     for each in authorized_member:
         if each.signed_by is not None:
             if total_cash_on_hand is None:
@@ -1176,8 +1238,8 @@ def allreports():
 
     members = User.query.all()
     semesters = Semester.query.all()
-    return render_template('allreports.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy, semesters=semesters, 
-                           search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter, members=members, total_voided=total_voided,
+    return render_template('allreports.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy, semesters=semesters, semester_filter = semester_filter, 
+                           all_semesters=all_semesters,search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter, members=members, total_voided=total_voided,
                            exempted=environment.exempted, current_datetime=current_datetime)
 
 import datetime
@@ -1191,6 +1253,7 @@ def importdata():
     clocked_end_date = request.form.getlist('clocked_end_date[]')
     subsidy_value = request.form.getlist('subsidy_value[]')
     role = request.form.getlist('role[]')
+    semester = request.form.getlist('semester[]')
 
     file = request.files['excelFile']
 
@@ -1204,11 +1267,11 @@ def importdata():
             end_datetime = datetime.datetime.strptime(end_date[i], '%Y-%m-%dT%H:%M')
 
             # Create the Subsidy object with datetime values
-            addsub = Subsidy(member_id[i], role[i], start_datetime, end_datetime)
+            addsub = Subsidy(member_id[i], role[i], start_datetime, end_datetime, semester[i])
             db.session.add(addsub)
             db.session.commit()
 
-            existing_sub = Subsidy.query.filter_by(member_id=member_id[i], role=role[i], start_date=start_datetime, end_date=end_datetime).first()
+            existing_sub = Subsidy.query.filter_by(member_id=member_id[i], role=role[i], start_date=start_datetime, end_date=end_datetime, semester=semester[i]).first()
 
             if existing_sub:
                 rendered_hours = toDateTime(clocked_end_date[i]) - toDateTime(clocked_start_date[i])
@@ -1234,8 +1297,7 @@ def importdata():
             for i in range(len(each)):
                 if str(each[i]) == 'nan' or len(str(each[i]).replace(' ',''))== 0:
                     each[i] = None
-            acknowledgementID = each[3].replace('No.', '').strip()
-
+            acknowledgementID = re.sub(r'\D', '', each[3])
             name = getnametodict(str(each[0]))
             year = 'N/A'
             course = 0

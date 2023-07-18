@@ -33,16 +33,19 @@ class Subsidy(db.Model):
     clocked_end_date = db.Column(db.DateTime, nullable=True)
     subsidy_value = db.Column(db.Numeric(precision=10, scale=2), db.ForeignKey('subsidy_value.subsidy_value'), nullable=False)
     rendered_hours = db.Column(db.Time, nullable=True)
+    semester = db.Column(db.Integer, db.ForeignKey('semester.semester_id'), nullable=False)
+    semester_rel = db.relationship('Semester')
     signed_by = db.Column(db.String(8), db.ForeignKey('user.id'), nullable=True)
 
     #checked_by // EIC only
-    def __init__(self, member_id, role, start_date, end_date):
+    def __init__(self, member_id, role, start_date, end_date, semester):
         self.member_id = member_id
         self.start_date = start_date
         self.end_date = end_date
         subsidy_value = SubsidyValue.query.first()
         self.role = role
         self.subsidy_value = subsidy_value.subsidy_value
+        self.semester = semester
 
         
 class Collection(db.Model):
@@ -97,6 +100,7 @@ class Semester(db.Model):
     sy_start = db.Column(db.String(4), nullable=False)
     sy_end = db.Column(db.String(4), nullable=False)
     collections = db.relationship('Collection', foreign_keys='Collection.semester', backref='semesters', lazy=True)
+    subsidies = db.relationship('Subsidy', foreign_keys='Subsidy.semester', backref='semesters', lazy=True)
     def __init__(self, semester, sy_start, sy_end):
         self.semester = semester
         self.sy_start = sy_start

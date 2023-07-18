@@ -127,6 +127,15 @@
                     <option value="encoder">Encoder</option>
                   </select>
                 </div>
+
+                <div class="mb-3">
+                  <label for="semester" class="col-form-label"><b>Semester</b></label>
+                  <select class="form-select" aria-label="" name="semester" id="semester" required>
+                      {% for sem in semesters %}
+                      <option value="{{sem.semester_id}}">{{sem.semester | format_semester }}, S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                      {% endfor %}
+                  </select>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -198,6 +207,15 @@
                   </select>
                 </div>
 
+                <div class="mb-3">
+                  <label for="semester" class="col-form-label"><b>Semester</b></label>
+                  <select class="form-select" aria-label="" name="semester" id="edit_semester" required>
+                      {% for sem in semesters %}
+                      <option value="{{sem.semester_id}}">{{sem.semester | format_semester }}, S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -227,6 +245,7 @@
             <th>Clocked Out</th>
             <th>Hours Rendered</th>
             <th>Subsidy Value</th>
+            <th>Semester</th>
             <th>Signed By</th>
             <th>Action</th>
 
@@ -297,6 +316,9 @@
               <p class="fw-normal mb-1">Php <b>{{member.subsidy_value}}</b></p>
             </td>
             <td>
+              <p class="fw-normal mb-1"><b>{{member.semester | get_semester}}</b></p>
+            </td>
+            <td>
               <p class="fw-normal mb-1"><b>
                 {% if member.signed_by is defined and member.signed_by is not none %}
                 {% for each in members %}
@@ -319,7 +341,7 @@
               </button>
               <button type="button" class="btn btn-link btn-sm btn-rounded" data-bs-toggle="modal"
                 data-bs-target="#editSubsidyModal"
-                onclick="setEditSubsidyModal('{{member.id}}','{{member.subsidy_id}}','{{member.start_date}}','{{member.end_date}}', '{{member.subsidy_value}}','{{member.role}}')">
+                onclick="setEditSubsidyModal('{{member.id}}','{{member.subsidy_id}}','{{member.start_date}}','{{member.end_date}}', '{{member.subsidy_value}}','{{member.role}}', '{{member.semester}}')">
                 <i class="fa-solid fa-pen"></i>
               </button>
               {% set allowed_users = ['Editor in Chief', 'Managing Director'] %}

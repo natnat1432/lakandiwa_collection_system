@@ -1,10 +1,11 @@
 
-function setEditSubsidyModal(member_id, subsidy_id, start_date, end_date,subsidy_value, role){
+function setEditSubsidyModal(member_id, subsidy_id, start_date, end_date,subsidy_value, role, semester){
     select = document.getElementById('edit_member_id'); 
     document.getElementById('edit_subsidy_id').value = subsidy_id;
     document.getElementById('edit_start_date').value = start_date;
     document.getElementById('edit_end_date').value = end_date;
     document.getElementById('edit_subsidy_value').value = subsidy_value;
+    document.getElementById('edit_semester').value = semester;
 
     select_role = document.getElementById('edit_role');
 

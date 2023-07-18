@@ -88,6 +88,15 @@
                     <option value="encoder">Encoder</option>
                   </select>
                 </div>
+
+                <div class="mb-3">
+                  <label for="semester" class="col-form-label"><b>Semester</b></label>
+                  <select class="form-select" aria-label="" name="semester[]" id="edit_semester" required>
+                      {% for sem in semesters %}
+                      <option value="{{sem.semester_id}}">{{sem.semester | format_semester }}, S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                      {% endfor %}
+                  </select>
+              </div>
             </div>
        
             </div>

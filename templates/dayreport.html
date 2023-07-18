@@ -421,7 +421,19 @@ aria-hidden="true">
                 <br>
              Total Cash on Hand 
             </button>
-            <!-- Heading -->
+            {% for sem,value in each_sem_total.items() %}
+            <button type="button" class="btn btn-primary home-button mt-2 mb-2 ms-1 me-1" >
+                <h4>Php{{ value | format_currency }} </h4>
+                <br>
+                Total Cash on 
+                <br>
+                {% for s in semesters%}
+                    {% if s.semester_id |string == sem | string%}
+                        {{s.semester | format_semester}} S.Y. {{s.sy_start}}-{{s.sy_end}}
+                    {% endif %}
+                {% endfor %}
+            </button>
+            {% endfor %}
            
             <div class="flexer">
               
@@ -442,7 +454,7 @@ aria-hidden="true">
                 <div>
                     <label for="student_filter">Filter</label> <br>
                     <select class="form-control" id="student_filter">
-
+                        
                         <option value="all"  {% if student_filter == 'all' %}selected{%endif%}>All</option>
                         <option value="excempted" {% if student_filter == 'excempted' %}selected{%endif%}>Excempted</option>
                         <option value="not_excempted" {% if student_filter == 'not_excempted' %}selected{%endif%}>Not Excempted</option>

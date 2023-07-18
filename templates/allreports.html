@@ -292,6 +292,7 @@ aria-hidden="true">
              <!-- Heading -->
             <div class="p-5 bg-light mb-4">
                 <h1 class=""> All Records</h1>
+        
                 <!-- Breadcrumb -->
                 <nav class="d-flex">
                 <h6 class="mb-0">
@@ -304,7 +305,25 @@ aria-hidden="true">
                 <!-- Breadcrumb -->
                 <hr>
                 
+                <h3>Semester</h3>
+            
+                <label for="">Filter</label>
+                <select name="semester_filter" class="form-select" id="semester_filter">
+                    {% if semester_filter == 'all' %}
+                    <option value="all" selected>All</option>
+                    {% else %}
+                    <option value="all">All</option>
+                    {% endif %}
+                    {% for sem in all_semesters %}
+                    {% if semester_filter | string == sem.semester_id | string %}
+                    <option value="{{sem.semester_id}}" selected>{{sem.semester | format_semester}} S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                    {% else %}
+                    <option value="{{sem.semester_id}}">{{sem.semester | format_semester}} S.Y. {{sem.sy_start}}-{{sem.sy_end}}</option>
+                    {%endif%}
+                    {% endfor %}
+                </select>
             </div>
+            
             <!-- Add Payment Collection Button -->
             <button type="button" class="btn btn-secondary home-button mt-2 mb-2 ms-1 me-1" data-bs-toggle="modal"
             data-bs-target="#addCollectionModal" data-bs-whatever="@mdo"><i

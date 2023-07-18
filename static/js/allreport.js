@@ -52,6 +52,10 @@ $(document).ready(function() {
         refreshPage();
       });
   
+      $('#semester_filter').change(function(){
+         console.log(this.value);
+         refreshPage();
+      });
   });
 
 
@@ -65,10 +69,11 @@ $(document).ready(function() {
 
     var search_query = document.getElementById("search_query").value;
 
-    var distinct_date = document.getElementById("distinct_date").value;
-    var distinct_day = document.getElementById("distinct_day").value;
 
-    window.location.href= `/allreports?sort_filter=${sort_filter}&student_filter=${student_filter}&excempted_filter=${excempted_filter}&course_filter=${course_filter}&year_filter=${year_filter}&void_filter=${void_filter}&search_query=${search_query}`;
+
+    var semester_filter = document.getElementById("semester_filter").value;
+
+    window.location.href= `/allreports?sort_filter=${sort_filter}&student_filter=${student_filter}&excempted_filter=${excempted_filter}&course_filter=${course_filter}&year_filter=${year_filter}&void_filter=${void_filter}&search_query=${search_query}&semester_filter=${semester_filter}`;
   }
 
   function setDeleteCollectionModal(id)
