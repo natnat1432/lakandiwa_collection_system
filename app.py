@@ -3,7 +3,7 @@ from config import app
 from config import db
 from models import User, Subsidy, Collection, CollectionValue, SubsidyValue, Semester
 
-
+import math
 from datetime import datetime, date, timedelta
 from sqlalchemy import Integer, and_, func, extract, or_
 
@@ -360,6 +360,15 @@ def clock_out():
 
     rendered_hours = datetime.datetime.now() - exist_subsidy.clocked_start_date
     total_hours = formatTime(rendered_hours)
+    work_rendered_time = exist_subsidy.end_date - exist_subsidy.clocked_start_date
+    work_rendered_time = int(work_rendered_time.seconds)
+    total_need_time = exist_subsidy.end_date - exist_subsidy.start_date
+    total_need_time = int(total_need_time.seconds)
+
+    percentage = work_rendered_time/total_need_time
+    final_subsidy = float(percentage)* float(exist_subsidy.subsidy_value)
+
+    exist_subsidy.subsidy_value = final_subsidy
     exist_subsidy.clocked_end_date = datetime.datetime.now()
     exist_subsidy.rendered_hours = total_hours
     db.session.commit()
@@ -612,15 +621,12 @@ def editcollectionallreport():
         return redirect(url_for('allreports', message='Record updated successfully'))
     else:
         return redirect(url_for('allreports', message='Collection not found'))
-
-
 @app.route('/subsidy')
 def subsidy():
     if "position" not in session:
         return redirect(url_for('index', message="Login first"))
     if session["position"] == "Admin":
         return redirect(url_for('users', message="Invalid page"))
-
     title = "Subsidy"
     message = request.args.get('message')
     members = User.query.filter_by(status="active").all()
@@ -667,13 +673,10 @@ def addsubsidy():
                 db.session.add(add_subsidy)
                 db.session.commit()
 
-                # add message successful adding subsidy
                 message = "Subsidy added successfully"
         else:
-            # add message to memeber error
             message = "Cannot add subsidy because member does not exist"
     else:
-        # add message to incomplete fields
         message = "Cannot add subsidy if fields are empty"
 
     return redirect(url_for('subsidy', message=message))
@@ -1084,7 +1087,12 @@ def allreports():
     year_filter = request.args.get('year_filter')
     void_filter = request.args.get('void_filter')
     semester_filter = request.args.get('semester_filter')
+    page_number = request.args.get('page_number')
 
+    if page_number:
+        page_number = int(page_number)
+    if not page_number:
+        page_number = 1
 
     if not sort_filter:
         sort_filter = 'desc'
@@ -1106,7 +1114,56 @@ def allreports():
     if semester_filter is None or len(semester_filter) == 0:
         semester_filter = 'all'
 
+    
     current_datetime = datetime.datetime.now()
+
+    #pagination
+    items_per_page = environment.pagination_items_per_page
+    offset = (page_number - 1 ) * items_per_page
+    total_items = db.session.query(func.count()).select_from(Collection).filter(
+        and_(
+            # func.date(Collection.created_at) == date_variable,
+            or_(
+                Collection.acknowledgementID.ilike(f"%{search_query}%"),
+                Collection.id_number.ilike(f"%{search_query}%"),
+                Collection.student_firstname.ilike(f"%{search_query}%"),
+                Collection.student_middlename.ilike(f"%{search_query}%"),
+                Collection.student_lastname.ilike(f"%{search_query}%")
+            )
+        ),
+        or_(
+            Collection.excempted_category.isnot(
+                None) if student_filter == 'excempted' and excempted_filter == 'all' else None,
+            Collection.excempted_category.is_(
+                excempted_filter) if student_filter == 'excempted' and excempted_filter != 'all' else None,
+            Collection.excempted_category.is_(
+                None) if student_filter == 'not_excempted' else None,
+            Collection.excempted_category.is_(
+                None) if student_filter == 'all' else None,
+            Collection.excempted_category.isnot(
+                None) if student_filter == 'all' else None,
+        ),
+        or_(
+            Collection.course.is_(
+                course_filter) if course_filter != 'all' else None,
+            Collection.course.isnot(None) if course_filter == 'all' else None,
+        ),
+        or_(
+            Collection.year.is_(year_filter) if year_filter != 'all' else None,
+            Collection.year.isnot(None) if year_filter == 'all' else None,
+        ),
+        or_(
+            Collection.voided.is_(
+                void_filter) if void_filter != 'all' else None,
+            Collection.voided.isnot(None) if void_filter == 'all' else None,
+        ),
+        or_(
+            Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
+            Collection.semester.isnot(None) if semester_filter == 'all' else None,
+        )
+    ).scalar()
+    max_page = math.ceil(total_items/items_per_page)
+
 
     all_semesters = db.session.query(Semester).all()
     collections = db.session.query(
@@ -1167,7 +1224,7 @@ def allreports():
             Collection.semester.is_(int(semester_filter)) if semester_filter != 'all' else None,
             Collection.semester.isnot(None) if semester_filter == 'all' else None,
         )
-    ).order_by(Collection.acknowledgementID.cast(Integer).desc() if sort_filter == 'desc' else Collection.acknowledgementID.cast(Integer)).all()
+    ).order_by(Collection.acknowledgementID.cast(Integer).desc() if sort_filter == 'desc' else Collection.acknowledgementID.cast(Integer)).offset(offset).limit(items_per_page).all()
 
     total_receipts = db.session.query(
         func.count()).select_from(Collection).filter(and_(    
@@ -1240,7 +1297,7 @@ def allreports():
     semesters = Semester.query.all()
     return render_template('allreports.html', title=title, course=environment.course,  collections=collections, message=message, total_receipts=total_receipts, total_excempted=total_exempted, total_number_of_receipts=total_number_of_receipts, total_amount_to_be_collected=total_amount_to_be_collected, total_cash_on_hand=total_cash_on_hand, authorized_member=authorized_member, total_subsidy=total_subsidy, semesters=semesters, semester_filter = semester_filter, 
                            all_semesters=all_semesters,search_query=search_query, sort_filter=sort_filter, student_filter=student_filter, excempted_filter=excempted_filter, course_filter=course_filter, year_filter=year_filter, void_filter=void_filter, members=members, total_voided=total_voided,
-                           exempted=environment.exempted, current_datetime=current_datetime)
+                           exempted=environment.exempted, current_datetime=current_datetime, page_number = page_number, max_page=max_page)
 
 import datetime
 

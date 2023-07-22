@@ -364,14 +364,17 @@ aria-hidden="true">
              Total Cash on Hand 
             </button>
             <!-- Heading -->
-           
-            <div class="flexer">
-              
-                <input type="text" class="form-control" id="search_query" placeholder="Search AcknowledgementID | Firstname | Middlename | Lastname | ID Number"  {% if search_query is defined and search_query is not none %}value="{{search_query}}" {%endif %}>
-                <button  class="btn btn-primary" onclick="refreshPage()"><i
-                        class="fa-sharp fa-solid fa-magnifying-glass" ></i></button>
-                  
-            </div>
+            <form id="searchForm">
+                <div class="flexer">
+                    <div class="flexer" style="width:100%;">
+                        <input style="flex-basis:90%;" type="text" class="form-control" id="search_query" placeholder="Search AcknowledgementID | Firstname | Middlename | Lastname | ID Number" {% if search_query is defined and search_query is not none %}value="{{search_query}}" {%endif %}>
+                        <button style="flex-basis:5%; display: none;" type="button" class="btn btn-secondary" id="clear_button"><i class="fa-sharp fa-solid fa-times-circle"></i></button>
+                        <button style="flex-basis:5%;" type="submit" class="btn btn-primary" id="search_button"><i class="fa-sharp fa-solid fa-magnifying-glass"></i></button>
+                       
+                    </div>
+                </div>
+                
+        </form>
             <div class="flexer">
                 <div>
                     <label for="sort">Sort</label><br>
@@ -432,7 +435,24 @@ aria-hidden="true">
                     </select>
                 </div>
             </div>
-
+            <hr>
+            <div class="flexer">
+            {% if page_number | int  != 1 %}
+            <button type="button" class="btn btn-secondary me-2" style="width:150px;" onclick="previousPage()"><i class="fa-solid fa-arrow-right fa-flip-horizontal me-2" ></i>Previous</button>
+            {% endif %}
+            {% if page_number | int < max_page | int %}
+        <button type="button" class="btn btn-secondary ms-2" style="width:150px;" onclick="nextPage()">Next<i class="fa-solid fa-arrow-right ms-2"></i></button>
+            {% endif %}
+            <div class="flexer">
+           
+                <input type="text" value="Page" class="stripInput ms-3" readonly style="width:50px">
+                <input type="text" value="{{page_number}}" id="page_number" class="stripInput" readonly style="width:35px">
+                <input type="text" value="/" class="stripInput" readonly style="width:30px">
+                <input type="text" value="{{max_page}}" class="stripInput" readonly style="width:35px">
+            </div>
+        </div>
+        
+            <hr>
  
             <table class="table align-middle mb-0 bg-white">
                 <thead class="bg-light">

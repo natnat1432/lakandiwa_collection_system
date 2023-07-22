@@ -51,6 +51,41 @@ $(document).ready(function() {
       $('#void_filter').change(function(){
         refreshPage();
       });
+
+      $('#searchForm').submit(function(event){
+        event.preventDefault();
+        refreshPage();
+        return false;
+      });
+      
+      function toggleClearButton() {
+        const searchQuery = $('#search_query').val().trim();
+        const clearButton = $('#clear_button');
+
+        if (searchQuery.length > 0) {
+            clearButton.show();
+        } else {
+            clearButton.hide();
+        }
+    }
+
+    // Call the toggleClearButton function on page load to initialize the button's visibility
+    toggleClearButton();
+
+    // Add an input event handler to the search input
+    $('#search_query').on('input', function() {
+        // Call toggleClearButton whenever the input value changes
+        toggleClearButton();
+     
+    });
+
+    // Add a click event handler to the "Clear Search" button
+    $('#clear_button').on('click', function() {
+        // Clear the search input and hide the "Clear Search" button
+        $('#search_query').val('');
+        toggleClearButton();
+        refreshPage();
+    });
   
   });
 

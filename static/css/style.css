@@ -366,3 +366,9 @@ body {
 .add-to-cart:hover {
   background-color: #45a049;
 }
+
+
+.stripInput{
+  outline:none;
+  border:none;
+}

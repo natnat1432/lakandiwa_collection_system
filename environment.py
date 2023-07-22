@@ -81,3 +81,5 @@ exempted = (
     "Reviewees of any board examination"
 )
 
+pagination_items_per_page = 100
+

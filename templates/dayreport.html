@@ -435,13 +435,17 @@ aria-hidden="true">
             </button>
             {% endfor %}
            
-            <div class="flexer">
-              
-                <input type="text" class="form-control" id="search_query" placeholder="Search AcknowledgementID | Firstname | Middlename | Lastname | ID Number"  {% if search_query is defined and search_query is not none %}value="{{search_query}}" {%endif %}>
-                <button  class="btn btn-primary" onclick="refreshPage()"><i
-                        class="fa-sharp fa-solid fa-magnifying-glass" ></i></button>
-                  
-            </div>
+            <form id="searchForm">
+                <div class="flexer">
+                    <div class="flexer" style="width:100%;">
+                        <input style="flex-basis:90%;" type="text" class="form-control" id="search_query" placeholder="Search AcknowledgementID | Firstname | Middlename | Lastname | ID Number" {% if search_query is defined and search_query is not none %}value="{{search_query}}" {%endif %}>
+                        <button style="flex-basis:5%; display: none;" type="button" class="btn btn-secondary" id="clear_button"><i class="fa-sharp fa-solid fa-times-circle"></i></button>
+                        <button style="flex-basis:5%;" type="submit" class="btn btn-primary" id="search_button"><i class="fa-sharp fa-solid fa-magnifying-glass"></i></button>
+                       
+                    </div>
+                </div>
+                
+        </form>
             <div class="flexer">
                 <div>
                     <label for="sort">Sort</label><br>
